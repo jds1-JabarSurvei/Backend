@@ -1,0 +1,22 @@
+{
+  "name": "if3250-23-jds1-crowdsourcing-backend",
+  "version": "1.0.0",
+  "description": "JDS01 Backend Project",
+  "main": "index.js",
+  "scripts": {
+    "dev": "npx nodemon server/server.js -w server"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.informatika.org/jds/23-jds1/if3250-23-jds1-crowdsourcing-backend.git"
+  },
+  "author": "K1-23",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.7"
+  }
+}
