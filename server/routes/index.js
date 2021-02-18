@@ -16,11 +16,11 @@ const router = express.Router();
 
 // async function testDecryptPass() {
 //   let hashed = "$2b$10$7bmyGlfIyzk9a35vtLYnnuMh6Q37gPGGX/M.JK1/LCwtGHMIa0Key";
-//   let test = await bcrypt.compare("pass5", hashed);
+//   let test = await bcrypt.compare("pass5", hashed); //contoh pembandingan dengan password untuk keperluan validasi nanti
 //   if (test) {
-//     console.log("Decrypting with bcrypt works!!");
+//     console.log("Bcrypt works!!");
 //   } else {
-//     console.log("Decrypting with bcrypt fails!!");
+//     console.log("Bcrypt fails!!");
 //   }
 // }
 
@@ -36,10 +36,15 @@ router.post("/register", async (req, res, next) => {
     let results = await db.register(email, username, hash);
     res.json(results);
   } catch (e) {
-    console.log(e.sqlMessage.split(" ").slice(-1));
-    if (e.sqlMessage.split(" ").slice(-1)[0] === "'user.username_UNIQUE'") {
+    if (
+      e.code === "ER_DUP_ENTRY" &&
+      e.sqlMessage.split(" ").slice(-1)[0] === "'user.username_UNIQUE'"
+    ) {
       res.send({ error: "Username has been taken" });
-    } else if (e.sqlMessage.split(" ").slice(-1)[0] === "'user.email_UNIQUE'") {
+    } else if (
+      e.code === "ER_DUP_ENTRY" &&
+      e.sqlMessage.split(" ").slice(-1)[0] === "'user.email_UNIQUE'"
+    ) {
       res.send({ error: "Email has been taken" });
     } else {
       res.sendStatus(500);
