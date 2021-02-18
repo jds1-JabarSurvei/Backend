@@ -38,9 +38,9 @@ router.post("/register", async (req, res, next) => {
   } catch (e) {
     console.log(e.sqlMessage.split(" ").slice(-1));
     if (e.sqlMessage.split(" ").slice(-1)[0] === "'user.username_UNIQUE'") {
-      res.send("Username has been there");
+      res.send({ error: "Username has been taken" });
     } else if (e.sqlMessage.split(" ").slice(-1)[0] === "'user.email_UNIQUE'") {
-      res.send("Email has been there");
+      res.send({ error: "Email has been taken" });
     } else {
       res.sendStatus(500);
     }
