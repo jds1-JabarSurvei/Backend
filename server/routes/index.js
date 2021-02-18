@@ -36,8 +36,14 @@ router.post("/register", async (req, res, next) => {
     let results = await db.register(email, username, hash);
     res.json(results);
   } catch (e) {
-    console.log(e);
-    res.sendStatus(500);
+    console.log(e.sqlMessage.split(" ").slice(-1));
+    if (e.sqlMessage.split(" ").slice(-1)[0] === "'user.username_UNIQUE'") {
+      res.send("Username has been there");
+    } else if (e.sqlMessage.split(" ").slice(-1)[0] === "'user.email_UNIQUE'") {
+      res.send("Email has been there");
+    } else {
+      res.sendStatus(500);
+    }
   }
 });
 
