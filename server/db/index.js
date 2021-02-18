@@ -1,4 +1,5 @@
 const mysql = require("mysql");
+
 const dotenv = require("dotenv").config();
 const pool = mysql.createPool({
   connectionLimit: 10,
@@ -21,6 +22,21 @@ db.all = () => {
       }
       return resolve(results);
     });
+  });
+};
+
+
+db.register = (email, username, password) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `INSERT INTO user (email, username, password) VALUES(?, ?, ?)`,
+      [email, username, password],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(result);
+      });
   });
 };
 
