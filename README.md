@@ -2,6 +2,8 @@
 
 <h2>How to run the server</h2>
 <ul>
+<li>Make dotenv file which contains DATABASE_USER, DATABASE_PASSWORD, and DATABASE_NAME</li>
+
 <li>Install all dependencies with <code>npm install</code></li>
 <li>Start the server in port 3000 with <code>npm run dev</code></li>
 <li>
