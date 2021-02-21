@@ -52,6 +52,29 @@ router.post("/register", async (req, res, next) => {
   }
 });
 
+router.post("/login", async (req, res, next) => {
+  
+    let email = req.body.email;
+    let password = req.body.password;
+    
+    try{
+      let results = await db.login(email);
+      let test = await bcrypt.compare(password, results[0].password); 
+      
+      if (test){
+        res.json({email : email, login:"Success"});
+      }else {
+        res.json({email : email, login:"Failed"});
+      }
+    } catch(e) {
+      if (e.message === "Cannot read property 'password' of undefined"){
+        res.json({email: email, login:"Failed"});
+      }else {
+        res.sendStatus(500);
+      }
+    }
+  }); 
+
 router.get("/api/login", async (req, res, next) => {
   try {
     let results = await db.all();
@@ -61,5 +84,6 @@ router.get("/api/login", async (req, res, next) => {
     res.sendStatus(500);
   }
 });
+
 
 module.exports = router;

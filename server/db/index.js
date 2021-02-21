@@ -40,4 +40,18 @@ db.register = (email, username, password) => {
   });
 };
 
+db.login = (email) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `SELECT email,password FROM user WHERE email = ?;`,
+      [email],
+      (err,result) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(result);
+      });
+  });
+};
+
 module.exports = db;
