@@ -1,30 +1,9 @@
 const express = require("express");
 const db = require("../db");
-const bodyParser = require("body-parser");
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
 
-var app = express();
-
-// parse application/x-www-form-urlencoded
-app.use(bodyParser.urlencoded({ extended: false }));
-
-// parse application/json
-app.use(bodyParser.json());
-
 const router = express.Router();
-
-// async function testDecryptPass() {
-//   let hashed = "$2b$10$7bmyGlfIyzk9a35vtLYnnuMh6Q37gPGGX/M.JK1/LCwtGHMIa0Key";
-//   let test = await bcrypt.compare("pass5", hashed); //contoh pembandingan dengan password untuk keperluan validasi nanti
-//   if (test) {
-//     console.log("Bcrypt works!!");
-//   } else {
-//     console.log("Bcrypt fails!!");
-//   }
-// }
-
-// testDecryptPass();
 
 router.post("/register", async (req, res, next) => {
   let email = req.body.email;
@@ -53,29 +32,28 @@ router.post("/register", async (req, res, next) => {
 });
 
 router.post("/login", async (req, res, next) => {
-  
-    let email = req.body.email;
-    let password = req.body.password;
-    
-    try{
-      let results = await db.login(email);
-      let test = await bcrypt.compare(password, results[0].password); 
-      
-      if (test){
-        res.json({email : email, login:"Success"});
-      }else {
-        res.json({email : email, login:"Failed"});
-      }
-    } catch(e) {
-      if (e.message === "Cannot read property 'password' of undefined"){
-        res.json({email: email, login:"Failed"});
-      }else {
-        res.sendStatus(500);
-      }
-    }
-  }); 
+  let email = req.body.email;
+  let password = req.body.password;
 
-router.get("/api/login", async (req, res, next) => {
+  try {
+    let results = await db.login(email);
+    let test = await bcrypt.compare(password, results[0].password);
+
+    if (test) {
+      res.json({ email: email, role: results[0].role, login: "Success" });
+    } else {
+      res.json({ email: email, login: "Failed" });
+    }
+  } catch (e) {
+    if (e.message === "Cannot read property 'password' of undefined") {
+      res.json({ email: email, login: "Failed" });
+    } else {
+      res.sendStatus(500);
+    }
+  }
+});
+
+router.get("/test", async (req, res, next) => {
   try {
     let results = await db.all();
     res.json(results);
@@ -84,6 +62,5 @@ router.get("/api/login", async (req, res, next) => {
     res.sendStatus(500);
   }
 });
-
 
 module.exports = router;

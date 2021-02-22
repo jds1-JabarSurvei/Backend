@@ -25,7 +25,6 @@ db.all = () => {
   });
 };
 
-
 db.register = (email, username, password) => {
   return new Promise((resolve, reject) => {
     pool.query(
@@ -36,21 +35,23 @@ db.register = (email, username, password) => {
           return reject(err);
         }
         return resolve(result);
-      });
+      }
+    );
   });
 };
 
 db.login = (email) => {
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT email,password FROM user WHERE email = ?;`,
+      `SELECT email,password,role FROM user WHERE email = ?;`,
       [email],
-      (err,result) => {
+      (err, result) => {
         if (err) {
           return reject(err);
         }
         return resolve(result);
-      });
+      }
+    );
   });
 };
 
