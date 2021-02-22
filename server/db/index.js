@@ -10,8 +10,6 @@ const pool = mysql.createPool({
   database: process.env.DATABASE_NAME,
 });
 
-console.log(process.env.DATABASE_PASSWORD);
-
 let db = {};
 
 db.all = () => {
