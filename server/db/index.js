@@ -26,7 +26,7 @@ db.all = () => {
 db.register = (email, username, password) => {
   return new Promise((resolve, reject) => {
     pool.query(
-      `INSERT INTO user (email, username, password) VALUES(?, ?, ?)`,
+      `INSERT INTO user (email, username, password, role) VALUES(?, ?, ?, "user")`,
       [email, username, password],
       (err, result) => {
         if (err) {
