@@ -9,22 +9,33 @@ router.post("/register", async (req, res, next) => {
   let email = req.body.email;
   let username = req.body.username;
   let password = req.body.password;
+  let contactNumber = req.body.contactNumber;
+  let gender = req.body.gender;
+  let address = req.body.address;
 
   try {
     let hash = await bcrypt.hash(password, saltRounds);
-    let results = await db.register(email, username, hash);
-    res.json(results);
+    await db.register(email, username, hash, contactNumber, gender, address);
+    res.json({
+      success: true,
+      email: email,
+      username: username,
+      password: hash,
+      contactNumber: contactNumber,
+      gender: gender,
+      address: address,
+    });
   } catch (e) {
     if (
       e.code === "ER_DUP_ENTRY" &&
       e.sqlMessage.split(" ").slice(-1)[0] === "'user.username_UNIQUE'"
     ) {
-      res.send({ error: "Username has been taken" });
+      res.json({ error: "Username has been taken" });
     } else if (
       e.code === "ER_DUP_ENTRY" &&
       e.sqlMessage.split(" ").slice(-1)[0] === "'user.email_UNIQUE'"
     ) {
-      res.send({ error: "Email has been taken" });
+      res.json({ error: "Email has been taken" });
     } else {
       res.sendStatus(500);
     }

@@ -23,11 +23,11 @@ db.all = () => {
   });
 };
 
-db.register = (email, username, password) => {
+db.register = (email, username, password, contactNumber, gender, address) => {
   return new Promise((resolve, reject) => {
     pool.query(
-      `INSERT INTO user (email, username, password, role) VALUES(?, ?, ?, "user")`,
-      [email, username, password],
+      `INSERT INTO user (email, username, password, role, contactNumber, gender, address) VALUES(?, ?, ?, "admin", ?, ?, ?)`,
+      [email, username, password, contactNumber, gender, address],
       (err, result) => {
         if (err) {
           return reject(err);
