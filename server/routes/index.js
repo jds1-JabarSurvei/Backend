@@ -26,6 +26,7 @@ router.post("/register", async (req, res, next) => {
     ) {
       res.send({ error: "Email has been taken" });
     } else {
+      console.log(e);
       res.sendStatus(500);
     }
   }
