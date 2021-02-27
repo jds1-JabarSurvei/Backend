@@ -27,11 +27,14 @@ CREATE TABLE `user` (
   `email` varchar(255) DEFAULT NULL,
   `username` varchar(255) DEFAULT NULL,
   `password` varchar(60) DEFAULT NULL,
-  `role` varchar(45) DEFAULT NULL,
+  `role` varchar(255) DEFAULT NULL,
+  `contactNumber` varchar(255) DEFAULT NULL,
+  `gender` varchar(1) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email_UNIQUE` (`email`),
   UNIQUE KEY `username_UNIQUE` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -40,7 +43,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES (1,'user1@gmail.com','user','$2b$10$FVqmwMklVabC2UXZvkC8TOQNFypwxR0Ftjksh.UeSh0GZ54PUg.8a','admin'),(2,'user2@gmail.com','user2','$2b$10$BlCmrc0plrtnnZUcOQQs3etwDBlof4dbFlUVTpG7fsX/0lnqqG0TC','user');
+INSERT INTO `user` VALUES (1,'user1@gmail.com','user','$2b$10$FVqmwMklVabC2UXZvkC8TOQNFypwxR0Ftjksh.UeSh0GZ54PUg.8a','admin','0-261-20-1204','M','Jl Abdurahman 148'),(2,'user2@gmail.com','user2','$2b$10$BlCmrc0plrtnnZUcOQQs3etwDBlof4dbFlUVTpG7fsX/0lnqqG0TC','admin','0-24-844-7173','F','Jl Veteran 1 A'),(3,'user3@gmail.com','user3','$2b$10$d.6LS9kHTmKNNipmakKavOMR1PX75CYwN3hbU4Maz9/JknS739JzW','admin','087825324233','F','JL. Yos Sudarso No. 99'),(5,'user4@gmail.com','user4','$2b$10$CcXFScrtZdsFgVf17KWFs.lJ8Y19b8xtY1n75.SPyEUl9Xxbj5sKa','admin','+62 986 213 504','M','Jl Tl Kumai Tmr 67'),(6,'user5@gmail.com','user5','$2b$10$oFY1kzjQiBru3fmmgvvNFeu3lW9SZjXMfqDX1BUTLkNL/BC8CXruK','admin','+62 986 213 504','M','Jl Tl Kumai Tmr 67');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -53,4 +56,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2021-02-22 14:43:15
+-- Dump completed on 2021-02-24 18:58:58
