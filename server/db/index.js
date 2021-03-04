@@ -56,4 +56,32 @@ db.login = (email) => {
   });
 };
 
+db.getFormQuestion = (idForm) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `SELECT * from form inner join form_field using(id_form) where id_form=?;`,[idForm],
+      (err, result) => {
+        if (err){
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
+db.getFormFieldOption = (id_form_field) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `SELECT * from form_field_option where id_form_field=?;`, [id_form_field],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
 module.exports = db;

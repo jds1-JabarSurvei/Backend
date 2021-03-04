@@ -64,4 +64,63 @@ router.get("/test", async (req, res, next) => {
   }
 });
 
+router.get("/formQuestions/:formID", async(req, res, next) => {
+  try{
+    let results = await db.getFormQuestion(req.params.formID);
+    let firstResult = results[0];
+    let returnResult={};
+    returnResult.form_id= req.params.formID;
+    returnResult.pembuat = firstResult.id_pembuat;
+    let bagianArray=[]
+    for (let i=0 ; i<results.length; i++){
+      let option=[];
+      if(results[i].tipe == "option"){
+        let options = await db.getFormFieldOption(results[i].id_form_field);
+        for(let i=0; i<options.length; i++){
+          option.push({[options[i].nama]: options[i].nilai});
+        }
+      }
+      if(bagianArray[results[i].bagian]){
+        //bagian sudah ada sebelumnya
+        //tambahkan pertanyaan
+        bagianArray[results[i].bagian].pertanyaan.push({
+          pertanyaan: results[i].pertanyaan,
+          tipe: results[i].tipe,
+          option: option
+        })
+      }
+      else{
+        //bagian belum ada sebelumnya
+        let temp = {
+          judul: `BAGIAN ${results[i].bagian+1}`,
+          pertanyaan: [{
+            pertanyaan: results[i].pertanyaan,
+            tipe: results[i].tipe,
+            option: option
+          }]
+        };
+        bagianArray.push(temp);
+      }
+    }
+    returnResult.pertanyaan = bagianArray;
+
+    res.json(returnResult);
+  }
+  catch(e){
+    console.log(e);
+  }
+})
+
+// router.get("/formFieldOption/:id_form_field", async(req, res, next) => {
+//   try{
+//     let results = await db.getFormFieldOption(req.params.id_form_field);
+//     console.log(results);
+//     res.json(results);
+//   }
+//   catch(e){
+//     console.log(e);
+//   }
+
+// }
+
 module.exports = router;
