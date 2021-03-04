@@ -1,0 +1,49 @@
+{
+    "form_id": 0,
+    "bagian": [{"judul": "BAGIAN 1","deskripsi": "tesss",
+                "pertanyaan": [{
+                    "pertanyaan": "short answer 1",
+                    "tipe": "shortanswer",
+                    "option" :[]
+                },
+                {
+                    "pertanyaan": "multiple choice (radio) 1",
+                    "tipe": "radio",
+                    "option": [{
+                            "nilai": "a"
+                        },
+                        {
+                            "nilai": "b"
+                        },
+                        {
+                            "nilai": "c"
+                        }]
+                    }]
+                },
+                {"judul": "BAGIAN 2","deskripsi": "tesss",
+                "pertanyaan": [{
+                        "pertanyaan": "short answer 2",
+                        "tipe": "shortanswer",
+                        "option":[]
+                    },
+                    {
+                        "pertanyaan": "multiple choice (radio) 2",
+                        "tipe": "radio",
+                        "option": [{
+                                "nilai": "a"
+                            },
+                            {
+                                "nilai": "b"
+                            },
+                            {
+                                "nilai": "c"
+                            }]
+                        }] 
+                    }]
+}   
+                        
+                    
+                
+            
+        
+    
