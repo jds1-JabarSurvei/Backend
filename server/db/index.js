@@ -84,4 +84,18 @@ db.getFormFieldOption = (id_form_field) => {
   });
 };
 
+db.getSectionDescription = (id_form, id_bagian) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `SELECT deskripsi from form_section where id_form=? and id_bagian=?;`, [id_form, id_bagian],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
 module.exports = db;

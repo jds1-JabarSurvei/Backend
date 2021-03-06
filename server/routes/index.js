@@ -1,6 +1,7 @@
 const express = require("express");
 const db = require("../db");
 const bcrypt = require("bcrypt");
+const nodemon = require("nodemon");
 const saltRounds = 10;
 
 const router = express.Router();
@@ -91,14 +92,19 @@ router.get("/formQuestions/:formID", async(req, res, next) => {
       }
       else{
         //bagian belum ada sebelumnya
+        let sectionDescriptionsResult = await db.getSectionDescription(req.params.formID,results[i].bagian);
         let temp = {
           judul: `BAGIAN ${results[i].bagian+1}`,
+          deskripsi: null,
           pertanyaan: [{
             pertanyaan: results[i].pertanyaan,
             tipe: results[i].tipe,
             option: option
           }]
         };
+        if(sectionDescriptionsResult[0] && sectionDescriptionsResult[0].deskripsi){
+          temp["deskripsi"] = sectionDescriptionsResult[0].deskripsi;
+        }
         bagianArray.push(temp);
       }
     }
@@ -110,6 +116,7 @@ router.get("/formQuestions/:formID", async(req, res, next) => {
     console.log(e);
   }
 })
+
 
 // router.get("/formFieldOption/:id_form_field", async(req, res, next) => {
 //   try{
