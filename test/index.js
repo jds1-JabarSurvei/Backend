@@ -25,9 +25,8 @@ test('Test correct list of forms returned', function(t){
 
         t.error(err, 'No error');
         t.same(res.body, expectedUsers, 'List of forms as expected');
-        console.log("Lookk dulu");
-        console.log(res.body);
         t.end();
-        console.log("Selesai");
     });
 });
+
+test.onFinish(() => process.exit(0));
