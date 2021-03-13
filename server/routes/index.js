@@ -178,6 +178,30 @@ router.get("/formResponse/:formID/:responseID", async(req, res, next) => {
   }
 })
 
+router.get("/listOfForms/:titleSubstring", async(req, res, next) => {
+  /*Get Request untuk mendapatkan list semua form yang ada */
+  let user=[];
+  let returnResult=[];
+  try{
+    let formsList = await db.getListOfMatchedForms(req.params.titleSubstring);
+    for(let i=0; i<formsList.length; i++){
+      let temp={};
+      temp.idForm = formsList[i].id_form;
+      temp.namaForm = formsList[i].nama_form;
+      if(!user[formsList[i].id_pembuat]){
+        user[formsList[i].id_pembuat] = (await db.getUserInfo(formsList[i].id_pembuat))[0].username;
+      } 
+      temp.pembuat = user[formsList[i].id_pembuat];
+      returnResult.push(temp);
+    }
+    res.send(returnResult);
+  }
+  catch(e){
+    console.log(e);
+    res.sendStatus(500);
+  }
+})
+
 router.get("/listOfForms", async(req, res, next) => {
   /*Get Request untuk mendapatkan list semua form yang ada */
   let user=[];

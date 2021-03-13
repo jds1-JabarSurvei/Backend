@@ -178,4 +178,18 @@ db.getListOfForms = () => {
   })
 }
 
+db.getListOfMatchedForms = (titleSubstring) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `SELECT * from form where nama_form like ?;`,["%" + titleSubstring + "%"],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    )
+  })
+}
+
 module.exports = db;
