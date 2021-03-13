@@ -202,6 +202,10 @@ router.get("/listOfForms", async(req, res, next) => {
   }
 })
 
-router.get()
+var dummy = ['John', 'Betty', 'Hal'];
+
+router.get('/api/users', function (req, res) {
+  res.json(dummy);
+});
 
 module.exports = router;
