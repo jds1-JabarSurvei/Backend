@@ -59,15 +59,8 @@ db.login = (email) => {
   });
 };
 
-<<<<<<< HEAD
-db.insert_form = (id_pembuat, nama_form) => {
-  return new Promise((resolve, reject) => {
-    pool.query(
-      `INSERT INTO form (id_pembuat, nama_form) VALUES(?, ? )`,
-      [id_pembuat, nama_form],
-      (err, result) => {
-        if (err) {
-=======
+
+
 db.getFormFields = (idForm) => {
   /*MYSQL query untuk mendapatkan semua field dari suatu form*/
   return new Promise((resolve, reject) => {
@@ -75,7 +68,6 @@ db.getFormFields = (idForm) => {
       `SELECT * from form inner join form_field using(id_form) where id_form=?;`,[idForm],
       (err, result) => {
         if (err){
->>>>>>> ac940701191eddbb4df74bf8c20e06b43c7108e2
           return reject(err);
         }
         return resolve(result);
@@ -84,15 +76,6 @@ db.getFormFields = (idForm) => {
   });
 };
 
-<<<<<<< HEAD
-db.insert_form_section = (id_form, id_bagian,judul,deskripsi) => { 
-  return new Promise((resolve, reject) => {
-    pool.query(
-      `INSERT INTO form (id_form, id_bagian,judul,deskripsi) VALUES(?, ?, ?, ? )`,
-      [id_form, id_bagian,judul,deskripsi],
-      (err, result) => {
-        if (err) {
-=======
 db.getFormFieldOption = (id_form_field) => {
   /*MYSQL query untuk mendapatkan semua opsional dari pertanyaan bertipe option*/
   return new Promise((resolve, reject) => {
@@ -100,7 +83,6 @@ db.getFormFieldOption = (id_form_field) => {
       `SELECT * from form_field_option where id_form_field=?;`, [id_form_field],
       (err, result) => {
         if(err){
->>>>>>> ac940701191eddbb4df74bf8c20e06b43c7108e2
           return reject(err);
         }
         return resolve(result);
@@ -109,14 +91,6 @@ db.getFormFieldOption = (id_form_field) => {
   });
 };
 
-db.insert_pertanyaan = (id_form, bagian,urutan,pertanyaan,tipe,deskripsi,required) => { // db form field
-  return new Promise((resolve, reject) => {
-    pool.query(
-      `INSERT INTO form_field (id_form, bagian,urutan,pertanyaan,tipe,deskripsi,required) 
-      VALUES(?, ?, ?, ?, ?, ?, ? )`,
-      [id_form, bagian,urutan,pertanyaan,tipe,deskripsi,required],
-      (err, result) => {
-        if (err) {
 db.getSectionDescription = (id_form, id_bagian) => {
   /*MySQL query untuk mendapatkan deskripsi dari suatu section */
   return new Promise((resolve, reject) => {
@@ -132,14 +106,6 @@ db.getSectionDescription = (id_form, id_bagian) => {
   });
 };
 
-db.insert_pertanyaan_pilihan = (id_form_field, nama, nilai, urutan) => { // db form field option
-  return new Promise((resolve, reject) => {
-    pool.query(
-      `INSERT INTO form_field (id_form_field, nama, nilai, urutan) 
-      VALUES(?, ?, ?, ?)`,
-      [id_form_field, nama, nilai, urutan],
-      (err, result) => {
-        if (err) {
 db.getFormEachResponse = (id_form, id_form_response) => {
   /*Mendapatkan respons dengan id respons tertentu dari form dengan id tertentu */
   return new Promise((resolve, reject) => {
@@ -154,15 +120,7 @@ db.getFormEachResponse = (id_form, id_form_response) => {
     );
   });
 };
-
-db.insert_form_bagian
-db.insert_hasil_form = (id_form) => { // db form field option
-  return new Promise((resolve, reject) => {
-    pool.query(
-      `INSERT INTO form_field (id_form) VALUES(?)`,
-      [id_form],
-      (err, result) => {
-        if (err) {
+          
 db.getFormAllResultIds = (id_form) => {
   /*Mendapatkan semua id respons dari sebuah form dengan id tertentu */
   return new Promise((resolve, reject) => {
@@ -178,14 +136,6 @@ db.getFormAllResultIds = (id_form) => {
   });
 };
 
-db.insert_jawaban_pertanyaan = (id_form_result, id_form_field, id_form_option, value) => { // db form field result
-  return new Promise((resolve, reject) => {
-    pool.query(
-      `INSERT INTO form_result (id_form_result, id_form_field, id_form_option, value) 
-      VALUES(?, ?, ?, ?)`,
-      [id_form_result, id_form_field, id_form_option, value],
-      (err, result) => {
-        if (err) {
 db.getFormInfo = (idForm) => {
   /*Mendapatkan informasi dari sebuah form dengan id tertentu */
   return new Promise((resolve, reject) => {
@@ -229,5 +179,100 @@ db.getListOfForms = () => {
     )
   })
 }
+
+db.insert_form = (id_pembuat, nama_form) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `INSERT INTO form (id_pembuat, nama_form) VALUES(?, ? )`,
+      [id_pembuat, nama_form],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
+db.insert_form_section = (id_form, id_bagian, judul, deskripsi) => { // db form field
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `INSERT INTO form_section (id_form, id_bagian, judul, deskripsi) 
+      VALUES(?, ?, ?, ? )`,
+      [id_form, id_bagian, judul, deskripsi],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
+db.insert_pertanyaan = (id_form, bagian,urutan,pertanyaan,tipe,deskripsi,required) => { // db form field
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `INSERT INTO form_field (id_form, bagian,urutan,pertanyaan,tipe,deskripsi,required) 
+      VALUES(?, ?, ?, ?, ?, ?, ? )`,
+      [id_form, bagian,urutan,pertanyaan,tipe,deskripsi,required],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
+db.insert_pertanyaan_pilihan = (id_form_field, nama, nilai, urutan) => { // db form field option
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `INSERT INTO form_field_option (id_form_field, nama, nilai, urutan) 
+      VALUES(?, ?, ?, ?)`,
+      [id_form_field, nama, nilai, urutan],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
+db.insert_hasil_form = (id_form) => { // db form field option
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `INSERT INTO form_field (id_form) VALUES(?)`,
+      [id_form],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
+db.insert_jawaban_pertanyaan = (id_form_result, id_form_field, id_form_option, value) => { // db form field result
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `INSERT INTO form_result (id_form_result, id_form_field, id_form_option, value) 
+      VALUES(?, ?, ?, ?)`,
+      [id_form_result, id_form_field, id_form_option, value],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
 
 module.exports = db;

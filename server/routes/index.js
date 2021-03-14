@@ -2,6 +2,7 @@ const express = require("express");
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const nodemon = require("nodemon");
+const { insert_form } = require("../db");
 const saltRounds = 10;
 
 const router = express.Router();
@@ -44,13 +45,13 @@ router.post("/login", async (req, res, next) => {
     let test = await bcrypt.compare(password, results[0].password);
 
     if (test) {
-      res.json({ email: email, role: results[0].role, login: "Success" });
+      res.json({ "email": email, "role": results[0].role, "login": "Success" });
     } else {
-      res.json({ email: email, login: "Failed" });
+      res.json({ "email": email, "login": "Failed" });
     }
   } catch (e) {
     if (e.message === "Cannot read property 'password' of undefined") {
-      res.json({ email: email, login: "Failed" });
+      res.json({ "email": email, "login": "Failed" });
     } else {
       res.sendStatus(500);
     }
@@ -202,6 +203,60 @@ router.get("/listOfForms", async(req, res, next) => {
   }
 })
 
-router.get()
+router.post("/buatform/:IdPembuat", async (req, res, next) => {
+  let id_pembuat = req.params.IdPembuat;
+  let nama_form = req.body.nama_form;
+  let bagianArray = req.body.bagian;
+
+  try {
+    let id_form = await db.insert_form(id_pembuat,nama_form);
+    id_form = id_form['insertId'];
+    let section = 0;
+    for (var numbagian in bagianArray){
+      let bagian = bagianArray[numbagian];
+      let pertanyaan_order=0;
+      await db.insert_form_section(id_form,section,bagian["judul"],bagian["deskripsi"]);
+      if(bagian["pertanyaan"]){
+        for (var numpertanyaan in bagian["pertanyaan"]){
+          let pertanyaan = bagian["pertanyaan"][numpertanyaan];
+          let id_form_field = await db.insert_pertanyaan(
+            id_form,
+            section,
+            pertanyaan_order,
+            pertanyaan["pertanyaan"],
+            pertanyaan["tipe"],
+            pertanyaan["deskripsi"],
+            pertanyaan["required"]);
+          if(pertanyaan["option"]){
+            let option_order =0;
+            for (var numoption in pertanyaan["option"]){
+              let option = pertanyaan["option"][numoption];
+              await db.insert_pertanyaan_pilihan(
+                id_form_field["insertId"],option["nama"],option["nilai"],option_order)
+              option_order++;
+            }            
+          }
+          pertanyaan_order++;
+        }
+      }
+      section++;  
+    }
+    res.json({"status":"success","id_form":id_form});
+  } catch (e) {
+      console.log(e);
+      res.sendStatus(500);
+  }
+});
+
+router.get("/all", async (req, res, next) => {
+
+  try {
+    let results = await db.all();
+    res.json(results);
+  } catch (e) {
+      console.log(e);
+      res.sendStatus(500);
+  }
+});
 
 module.exports = router;
