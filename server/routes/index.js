@@ -203,8 +203,8 @@ router.get("/listOfForms", async(req, res, next) => {
   }
 })
 
-router.post("/buatform/:IdPembuat", async (req, res, next) => {
-  let id_pembuat = req.params.IdPembuat;
+router.post("/buatform", async (req, res, next) => {
+  let id_pembuat = req.body.user_id;
   let nama_form = req.body.judulForm;
   let bagianArray = req.body.bagian;
 
@@ -247,6 +247,24 @@ router.post("/buatform/:IdPembuat", async (req, res, next) => {
       res.sendStatus(500);
   }
 });
+
+router.post("/submitjawaban", async (req, res, next) => {
+  try{
+    let id_form = req.body.id_form;
+    let jawaban = req.body.jawaban;
+    let id_res = await db.insert_hasil_form(id_form);
+    id_res = id_res["insertId"]
+    for (var numjawaban in jawaban){
+      let ans = jawaban[numjawaban];
+      await db.insert_jawaban_pertanyaan(id_res,ans["id_form_field"],ans["id_form_option"],ans["value"]);
+    }
+    res.json({"id_res":id_res,"status":"success"});
+  }catch (e){
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
+
 
 router.get("/all", async (req, res, next) => {
 

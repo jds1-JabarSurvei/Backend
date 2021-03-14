@@ -231,7 +231,7 @@ db.insert_pertanyaan_pilihan = (id_form_field, nilai, urutan) => { // db form fi
   return new Promise((resolve, reject) => {
     pool.query(
       `INSERT INTO form_field_option (id_form_field, nilai, urutan) 
-      VALUES(?, ?, ?, ?)`,
+      VALUES(?, ?, ?)`,
       [id_form_field,nilai, urutan],
       (err, result) => {
         if (err) {
@@ -246,7 +246,7 @@ db.insert_pertanyaan_pilihan = (id_form_field, nilai, urutan) => { // db form fi
 db.insert_hasil_form = (id_form) => { // db form field option
   return new Promise((resolve, reject) => {
     pool.query(
-      `INSERT INTO form_field (id_form) VALUES(?)`,
+      `INSERT INTO form_result (id_form) VALUES(?)`,
       [id_form],
       (err, result) => {
         if(err){
@@ -261,7 +261,7 @@ db.insert_hasil_form = (id_form) => { // db form field option
 db.insert_jawaban_pertanyaan = (id_form_result, id_form_field, id_form_option, value) => { // db form field result
   return new Promise((resolve, reject) => {
     pool.query(
-      `INSERT INTO form_result (id_form_result, id_form_field, id_form_option, value) 
+      `INSERT INTO form_field_value (id_form_result, id_form_field, id_form_option, value) 
       VALUES(?, ?, ?, ?)`,
       [id_form_result, id_form_field, id_form_option, value],
       (err, result) => {
