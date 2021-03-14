@@ -205,7 +205,7 @@ router.get("/listOfForms", async(req, res, next) => {
 
 router.post("/buatform/:IdPembuat", async (req, res, next) => {
   let id_pembuat = req.params.IdPembuat;
-  let nama_form = req.body.nama_form;
+  let nama_form = req.body.judulForm;
   let bagianArray = req.body.bagian;
 
   try {
@@ -232,7 +232,7 @@ router.post("/buatform/:IdPembuat", async (req, res, next) => {
             for (var numoption in pertanyaan["option"]){
               let option = pertanyaan["option"][numoption];
               await db.insert_pertanyaan_pilihan(
-                id_form_field["insertId"],option["nama"],option["nilai"],option_order)
+                id_form_field["insertId"],option["nilai"],option_order);
               option_order++;
             }            
           }

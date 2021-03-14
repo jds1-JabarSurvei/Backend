@@ -227,12 +227,12 @@ db.insert_pertanyaan = (id_form, bagian,urutan,pertanyaan,tipe,deskripsi,require
   });
 };
 
-db.insert_pertanyaan_pilihan = (id_form_field, nama, nilai, urutan) => { // db form field option
+db.insert_pertanyaan_pilihan = (id_form_field, nilai, urutan) => { // db form field option
   return new Promise((resolve, reject) => {
     pool.query(
-      `INSERT INTO form_field_option (id_form_field, nama, nilai, urutan) 
+      `INSERT INTO form_field_option (id_form_field, nilai, urutan) 
       VALUES(?, ?, ?, ?)`,
-      [id_form_field, nama, nilai, urutan],
+      [id_form_field,nilai, urutan],
       (err, result) => {
         if (err) {
           return reject(err);
