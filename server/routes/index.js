@@ -71,10 +71,10 @@ router.get("/formQuestions/:formID", async(req, res, next) => {
     let bagianArray=[]
     for (let i=0 ; i<results.length; i++){
       let option=[];
-      if(results[i].tipe == "option"){
+      if(results[i].tipe == "radio" || results[i].tipe == "checkbox"){
         let options = await db.getFormFieldOption(results[i].id_form_field);
         for(let i=0; i<options.length; i++){
-          option.push({[options[i].nama]: options[i].nilai});
+          option.push({nilai: options[i].nilai, id_form_option: options[i].id_form_field_option});
         }
       }
       if(bagianArray[results[i].bagian]){
