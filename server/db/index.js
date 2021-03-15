@@ -104,11 +104,11 @@ db.getSectionDescription = (id_form, id_bagian) => {
   });
 };
 
-db.getFormEachResponse = (id_form, id_form_response) => {
+db.getFormEachResponse = (id_form_result) => {
   /*Mendapatkan respons dengan id respons tertentu dari form dengan id tertentu */
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT * from form_result join form_field_value using(id_form_result, id_response) join form_field using(id_form, id_form_field) where id_form=? and id_response=?;`,[id_form, id_form_response],
+      `SELECT * from form_result join form_field_value using(id_form_result) join form_field using(id_form_field) where id_form_result=?;`,[id_form_result],
       (err, result) => {
         if(err){
           return reject(err);
