@@ -1,0 +1,30 @@
+{
+    "id_form": 34,
+    "jawaban": [
+        {
+            "id_form_field" : 56,
+            "id_form_option" : null,
+            "value" :"karna aku suka kuning"
+        },
+        {
+            "id_form_field" : 57,
+            "id_form_option" : null,
+            "value" :"dummy"
+        },
+        {
+            "id_form_field" : 58,
+            "id_form_option" : 38,
+            "value" :"a"
+        },
+        {
+            "id_form_field" : 59,
+            "id_form_option" : 40,
+            "value" :"a"
+        },
+        {
+            "id_form_field" : 59,
+            "id_form_option" : 41,
+            "value" :"b"
+        }
+    ]
+}

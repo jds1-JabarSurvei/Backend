@@ -1,0 +1,76 @@
+{
+    "user_id":"1",
+    "judulForm": "dummy",
+    "bagian": [
+        {
+            "judul": "BAGIAN 1",
+            "deskripsi": "dummy",
+            "pertanyaan": [
+                {
+                    "pertanyaan": "(dummy)Kenapa Spongebob warnanya kuning?",
+                    "deskripsi": "kemukakan jawaban anda mengenai warna kuning dari spongebob",
+                    "required": "1",
+                    "urutan": 1,
+                    "tipe": "short_answer",
+                    "option": []
+                },
+                {
+                    "pertanyaan": "Pertanyaan 2 bagian 0 form 1?",
+                    "deskripsi": "deskripsi pertanyaan 2 form 1",
+                    "required": "1",
+                    "urutan": 2,
+                    "tipe": "short_answer",
+                    "option": []
+                }
+            ]
+        },
+        {
+            "judul": "BAGIAN 2",
+            "deskripsi": null,
+            "pertanyaan": [
+                {
+                    "pertanyaan": "Pertanyaan 1  bagian 1 form 1?",
+                    "deskripsi": "deskripsi pertanyaan 0 bagian 1 form 1",
+                    "required": "1",
+                    "urutan": 1,
+                    "tipe": "radio",
+                    "option": [
+                        {
+                            "nilai" :"a"
+                        },
+                        {
+                            "nilai" :"b"
+                        },
+                        {
+                            "nilai" :"c"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "judul": "BAGIAN 3",
+            "deskripsi": null,
+            "pertanyaan": [
+                {
+                    "pertanyaan": "Pertanyaan 1 bagian 2 form 1?",
+                    "deskripsi": "deskripsi pertanyaan 1 bagian 2 form 1",
+                    "required": "1",
+                    "urutan": 1,
+                    "tipe": "checkbox",
+                    "option": [
+                        {
+                            "nilai": "a"
+                        },
+                        {
+                            "nilai": "b"
+                        },
+                        {
+                            "nilai": "c"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
