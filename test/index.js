@@ -12,14 +12,44 @@ test('Test correct list of forms returned', function(t){
     .end(function(err, res){
         var expectedUsers = [
             {
-                "idForm": 1,
-                "namaForm": "dummy",
-                "pembuat": "user"
+                "id": 1,
+                "title": "dummy",
+                "owner": "user"
             },
             {
-                "idForm": 2,
-                "namaForm": "dummy2",
-                "pembuat": "user"
+                "id": 2,
+                "title": "dummy2",
+                "owner": "user"
+            },
+            {
+                "id": 3,
+                "title": "dummy",
+                "owner": "user"
+            },
+            {
+                "id": 4,
+                "title": "NEW dummy",
+                "owner": "user"
+            },
+            {
+                "id": 5,
+                "title": "YUHUHUHU dummy",
+                "owner": "user"
+            },
+            {
+                "id": 6,
+                "title": "Untitled Form",
+                "owner": "user"
+            },
+            {
+                "id": 7,
+                "title": "Tes Submit API Form",
+                "owner": "user"
+            },
+            {
+                "id": 8,
+                "title": "Tes Submit API Form 2",
+                "owner": "user"
             }
         ];
 
