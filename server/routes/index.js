@@ -187,12 +187,12 @@ router.get("/listOfForms", async(req, res, next) => {
     let formsList = await db.getListOfForms();
     for(let i=0; i<formsList.length; i++){
       let temp={};
-      temp.idForm = formsList[i].id_form;
-      temp.namaForm = formsList[i].nama_form;
+      temp.id = formsList[i].id_form;
+      temp.title = formsList[i].nama_form;
       if(!user[formsList[i].id_pembuat]){
         user[formsList[i].id_pembuat] = (await db.getUserInfo(formsList[i].id_pembuat))[0].username;
       } 
-      temp.pembuat = user[formsList[i].id_pembuat];
+      temp.owner = user[formsList[i].id_pembuat];
       returnResult.push(temp);
     }
     res.send(returnResult);
@@ -203,6 +203,7 @@ router.get("/listOfForms", async(req, res, next) => {
   }
 })
 
+<<<<<<< server/routes/index.js
 router.post("/buatform", async (req, res, next) => {
   let id_pembuat = req.body.user_id;
   let nama_form = req.body.judulForm;
@@ -276,5 +277,7 @@ router.get("/all", async (req, res, next) => {
       res.sendStatus(500);
   }
 });
-
+module.exports = router;
+=======
+>>>>>>> server/routes/index.js
 module.exports = router;
