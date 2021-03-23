@@ -7,8 +7,15 @@ build:
   image: node:latest
   script:
     - npm install
+  artifacts:
+    paths:
+      - .npm/
+      - node_modules/
+
 test:
   stage: test
   image: node:latest
   script:
     - npm run test  
+  dependencies:
+    - install
