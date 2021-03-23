@@ -1,9 +1,14 @@
 stages:
-  - testOne
+  - build
+  - test
 
-testOne:
-  stage: testOne
+build:
+  stage: build
   image: node:latest
   script:
     - npm install
+test:
+  stage: test
+  image: node:latest
+  script:
     - npm run test  
