@@ -116,6 +116,20 @@ router.get("/formQuestions/:formID", async(req, res, next) => {
   }
 })
 
+router.get("/formResponseIds/:formID", async(req, res, next) => {
+  try{
+    let resultArray=[];
+    let result = await db.getFormAllResultIds(req.params.formID);
+    for(let i=0; i<result.length; i++){
+      resultArray.push(result[i].id_form_result);
+    }
+    res.json(resultArray);
+  }
+  catch(e){
+    console.log(e);
+  }
+})
+
 router.get("/formResponse/:formID/:responseID", async(req, res, next) => {
   /*GET request untuk mendapatkan pertanyaan serta jawaban dari suatu respon dari suatu form*/
   try{
