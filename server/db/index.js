@@ -27,12 +27,12 @@ db.all = () => {
   });
 };
 
-db.register = (email, username, password) => {
+db.register = (email, username, password, contactNumber, gender, address, birthday) => {
   /*MySQL query untuk menambahkan user baru ke dalam tabel user */
   return new Promise((resolve, reject) => {
     pool.query(
-      `INSERT INTO user (email, username, password, role) VALUES(?, ?, ?, "user")`,
-      [email, username, password],
+      `INSERT INTO user (email, username, password, role, contactNumber, gender, address, birthday) VALUES(?, ?, ?, "admin", ?, ?, ?, ?)`,
+      [email, username, password, contactNumber, gender, address, birthday],
       (err, result) => {
         if (err) {
           return reject(err);

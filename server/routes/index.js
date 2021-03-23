@@ -9,12 +9,16 @@ const router = express.Router();
 router.post("/register", async (req, res, next) => {
   /*POST request untuk meregister user baru sesuai parameter body*/
   let email = req.body.email;
-  let username = req.body.username;
+  let username = req.body.email.split("@")[0];
   let password = req.body.password;
+  let contactNumber = req.body.contactNumber;
+  let gender = req.body.gender;
+  let address = req.body.address;
+  let birthday = req.body.birthday;
 
   try {
     let hash = await bcrypt.hash(password, saltRounds);
-    let results = await db.register(email, username, hash);
+    let results = await db.register(email, username, hash, contactNumber, gender, address, birthday);
     res.json(results);
   } catch (e) {
     if (
