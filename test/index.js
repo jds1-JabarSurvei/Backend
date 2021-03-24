@@ -188,4 +188,24 @@ test('Test get list of questions of survey', function(t){
     });
 
 });
+
+test('Test search list of forms with specific keyword', function(t){
+  request(app)
+  .get('/listOfForms/dummy2')
+  .expect('Content-Type', /json/)
+  .expect(200)
+  .end(function(err, res){
+      var expectedSearch = 
+          {
+              "id": 2,
+              "title": "dummy2",
+              "owner": "user"
+          };
+
+      t.error(err, 'No error');
+      t.same(res.body[0], expectedSearch, 'List of forms as expected');
+      t.end();
+  });
+});
+
 test.onFinish(() => process.exit(0));
