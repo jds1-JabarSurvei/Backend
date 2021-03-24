@@ -125,7 +125,7 @@ db.getFormAllResultIds = (id_form) => {
   /*Mendapatkan semua id respons dari sebuah form dengan id tertentu */
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT distinct id_response from form_result where id_form=?;`,[id_form],
+      `SELECT id_form_result from form_result where id_form=?;`,[id_form],
       (err, result) => {
         if(err){
           return reject(err);
