@@ -27,12 +27,12 @@ db.all = () => {
   });
 };
 
-db.register = (email, username, password, contactNumber, gender, address, birthday) => {
+db.register = (email, username, password) => {
   /*MySQL query untuk menambahkan user baru ke dalam tabel user */
   return new Promise((resolve, reject) => {
     pool.query(
-      `INSERT INTO user (email, username, password, role, contactNumber, gender, address, birthday) VALUES(?, ?, ?, "admin", ?, ?, ?, ?)`,
-      [email, username, password, contactNumber, gender, address, birthday],
+      `INSERT INTO user (email, username, password, role) VALUES(?, ?, ?, "user")`,
+      [email, username, password],
       (err, result) => {
         if (err) {
           return reject(err);
@@ -95,7 +95,7 @@ db.getSectionDescription = (id_form, id_bagian) => {
   /*MySQL query untuk mendapatkan deskripsi dari suatu section */
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT * from form_section where id_form=? and id_bagian=?;`, [id_form, id_bagian],
+      `SELECT deskripsi from form_section where id_form=? and id_bagian=?;`, [id_form, id_bagian],
       (err, result) => {
         if(err){
           return reject(err);
@@ -125,7 +125,7 @@ db.getFormAllResultIds = (id_form) => {
   /*Mendapatkan semua id respons dari sebuah form dengan id tertentu */
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT id_form_result from form_result where id_form=?;`,[id_form],
+      `SELECT distinct id_response from form_result where id_form=?;`,[id_form],
       (err, result) => {
         if(err){
           return reject(err);
@@ -280,36 +280,6 @@ db.insert_jawaban_pertanyaan = (id_form_result, id_form_field, id_form_option, v
       `INSERT INTO form_field_value (id_form_result, id_form_field, id_form_option, value) 
       VALUES(?, ?, ?, ?)`,
       [id_form_result, id_form_field, id_form_option, value],
-      (err, result) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve(result);
-      }
-    );
-  });
-};
-
-db.delete_form = (id_form) => { // db form field result
-  return new Promise((resolve, reject) => {
-    pool.query(
-      `DELETE FROM form where id_form = ?`,
-      [id_form],
-      (err, result) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve(result);
-      }
-    );
-  });
-};
-
-db.delete_response = (id_form,id_response) => { // db form field result
-  return new Promise((resolve, reject) => {
-    pool.query(
-      `DELETE FROM form_result where id_form = ? AND id_response = ?`,
-      [id_form, id_response],
       (err, result) => {
         if (err) {
           return reject(err);
