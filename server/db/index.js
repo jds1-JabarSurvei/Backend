@@ -290,5 +290,35 @@ db.insert_jawaban_pertanyaan = (id_form_result, id_form_field, id_form_option, v
   });
 };
 
+db.delete_form = (id_form) => { // db form field result
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `DELETE FROM form where id_form = ?`,
+      [id_form],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
+db.delete_response = (id_form,id_response) => { // db form field result
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `DELETE FROM form_result where id_form = ? AND id_response = ?`,
+      [id_form, id_response],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
 
 module.exports = db;
