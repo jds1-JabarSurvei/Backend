@@ -425,6 +425,28 @@ router.post("/submitjawaban", async (req, res, next) => {
   }
 });
 
+router.post("/deleteform", async(req,res,next) =>{
+  try{
+    let id_form = req.body.id_form;
+    let results = await db.delete_form(id_form);
+    res.json(results);
+  }catch(e){
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
+
+router.post("/deleteresponse", async(req,res,next) =>{
+  try{
+    let id_form = req.body.id_form;
+    let id_response = req.body.id_response;
+    let results = await db.delete_response(id_form,id_response);
+    res.json(results);
+  }catch(e){
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
 
 router.get("/all", async (req, res, next) => {
 
