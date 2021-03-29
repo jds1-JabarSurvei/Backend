@@ -95,7 +95,7 @@ db.getSectionDescription = (id_form, id_bagian) => {
   /*MySQL query untuk mendapatkan deskripsi dari suatu section */
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT deskripsi from form_section where id_form=? and id_bagian=?;`, [id_form, id_bagian],
+      `SELECT * from form_section where id_form=? and id_bagian=?;`, [id_form, id_bagian],
       (err, result) => {
         if(err){
           return reject(err);

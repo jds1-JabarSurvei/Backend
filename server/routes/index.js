@@ -186,7 +186,7 @@ async function getSpecificResponse(idResponse){
         //bagian belum ada sebelumnya
         let sectionDescriptionsResult = await db.getSectionDescription(results[i].id_form,results[i].bagian);
         let temp = {
-          judul: `BAGIAN ${results[i].bagian+1}`,
+          judul: sectionDescriptionsResult[0].judul,
           bagian: results[i].bagian,
           deskripsi: null,
           response: [{
