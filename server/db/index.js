@@ -27,12 +27,12 @@ db.all = () => {
   });
 };
 
-db.register = (email, username, password) => {
+db.register = (email, username, password, contactNumber, gender, address, birthday) => {
   /*MySQL query untuk menambahkan user baru ke dalam tabel user */
   return new Promise((resolve, reject) => {
     pool.query(
-      `INSERT INTO user (email, username, password, role) VALUES(?, ?, ?, "user")`,
-      [email, username, password],
+      `INSERT INTO user (email, username, password, role, contactNumber, gender, address, birthday) VALUES(?, ?, ?, "admin", ?, ?, ?, ?)`,
+      [email, username, password, contactNumber, gender, address, birthday],
       (err, result) => {
         if (err) {
           return reject(err);
@@ -95,7 +95,7 @@ db.getSectionDescription = (id_form, id_bagian) => {
   /*MySQL query untuk mendapatkan deskripsi dari suatu section */
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT deskripsi from form_section where id_form=? and id_bagian=?;`, [id_form, id_bagian],
+      `SELECT * from form_section where id_form=? and id_bagian=?;`, [id_form, id_bagian],
       (err, result) => {
         if(err){
           return reject(err);
