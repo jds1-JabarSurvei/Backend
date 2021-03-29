@@ -95,7 +95,7 @@ db.getSectionDescription = (id_form, id_bagian) => {
   /*MySQL query untuk mendapatkan deskripsi dari suatu section */
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT deskripsi from form_section where id_form=? and id_bagian=?;`, [id_form, id_bagian],
+      `SELECT * from form_section where id_form=? and id_bagian=?;`, [id_form, id_bagian],
       (err, result) => {
         if(err){
           return reject(err);
@@ -125,7 +125,7 @@ db.getFormAllResultIds = (id_form) => {
   /*Mendapatkan semua id respons dari sebuah form dengan id tertentu */
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT distinct id_response from form_result where id_form=?;`,[id_form],
+      `SELECT id_form_result from form_result where id_form=?;`,[id_form],
       (err, result) => {
         if(err){
           return reject(err);
