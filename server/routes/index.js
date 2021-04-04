@@ -4,8 +4,10 @@ const bcrypt = require("bcrypt");
 const nodemon = require("nodemon");
 const { insert_form } = require("../db");
 const saltRounds = 10;
-
+const fileUpload = require('express-fileupload');
+const path = require('path');
 const router = express.Router();
+const uploader = router.use(fileUpload());
 
 router.post("/register", async (req, res, next) => {
   /*POST request untuk meregister user baru sesuai parameter body*/
@@ -446,6 +448,22 @@ router.post("/deleteresponse", async(req,res,next) =>{
     console.log(e);
     res.sendStatus(500);
   }
+});
+
+uploader.post("/upload",(req,res) =>{
+  if(req.files === null) {
+    return res.status(400).json({ status: "failed", msg: 'No file uploaded'})
+  }
+  const file = req.files.file;  
+  var filelocation = path.join(__dirname, '../db/images',file.name)
+  file.mv(filelocation,err => {
+    if(err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+
+    res.json({status: "success",filename:`/images/${file.name}`})
+  });
 });
 
 router.get("/all", async (req, res, next) => {
