@@ -110,7 +110,7 @@ db.getFormEachResponse = (id_form_result) => {
   /*Mendapatkan respons dengan id respons tertentu dari form dengan id tertentu */
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT * from form_result join form_field_value using(id_form_result) join form_field using(id_form_field) where id_form_result=?;`,[id_form_result],
+      `select id_form, table1.id_form_result, id_pembuat, nama_form, form_field.id_form_field, bagian, urutan, pertanyaan, tipe, deskripsi, required, id_form_field_value, id_form_option, value from ((select * from  form_result join form using (id_form) where id_form_result=?) as table1 join form_field using (id_form)) left join form_field_value on (table1.id_form_result = form_field_value.id_form_result and form_field.id_form_field=form_field_value.id_form_field);`,[id_form_result],
       (err, result) => {
         if(err){
           return reject(err);
