@@ -2,7 +2,7 @@ const express = require("express");
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const nodemon = require("nodemon");
-const { insert_form } = require("../db");
+const { insert_form, update_form_section } = require("../db");
 const saltRounds = 10;
 
 const router = express.Router();
@@ -223,8 +223,8 @@ router.get("/allFormResponses/:formID", async(req, res, next) => {
     for(let i=0; i<result.length; i++){
       resultArray.push(result[i].id_form_result);
     }
-    // let listOfResponses=[];
     let finalResponse = await getSpecificResponse(resultArray[0]);
+    delete finalResponse["response_id"];
     for(let i=1; i<resultArray.length; i++){
       let responseId = resultArray[i]
       let response = await getSpecificResponse(responseId);
@@ -382,6 +382,12 @@ router.post("/buatform", async (req, res, next) => {
   let nama_form = req.body.judulForm;
   let bagianArray = req.body.bagian;
 
+  // console.log("jshjahsdhajd");
+  // console.log(req.body);
+  // console.log("asjhajdhejdas");
+  // console.log(bagianArray[0].pertanyaan);
+  // console.log("asdaheudahd");
+
   try {
     let id_form = await db.insert_form(id_pembuat,nama_form);
     id_form = id_form['insertId'];
@@ -461,6 +467,70 @@ router.post("/deleteresponse", async(req,res,next) =>{
     res.sendStatus(500);
   }
 });
+
+router.post("/editform", async(req, res, next) => {
+  try{
+    let id_form = req.body.id_form;
+    let judulForm = req.body.judulForm;
+    let bagianArray = req.body.bagian;
+    // console.log(id_form);
+    // console.log(judulForm);
+    // console.log(bagianArray);
+    //Update form info
+    await db.update_form_info(id_form, judulForm);
+    for(let i=0; i<bagianArray.length; i++){
+      let bagian=bagianArray[i];
+      //Update section
+      let result = await db.update_form_section(id_form, i, bagian.judul, bagian.deskripsi);
+      // Update pertanyaan
+      let pertanyaanArray = bagian.pertanyaan;
+      console.log("Panjang array pertanyaan: " + pertanyaanArray.length);
+      for(let j=0; j<pertanyaanArray.length; j++){
+        // console.log("Masukk Loop ke-" + j);
+        // await db.update_form_field(id_form, i, j, pertanyaanArray[i].pertanyaan, pertanyaanArray[i].tipe, pertanyaanArray[i].deskripsi, pertanyaanArray[i].required, pertanyaanArray[i].option);
+        let id_form_field_temp = await db.getFormFieldId(id_form, i, j);
+        let id_form_field = null;
+        if(id_form_field_temp && id_form_field_temp[0] && id_form_field_temp[0].id_form_field){
+          id_form_field = id_form_field_temp[0].id_form_field;
+        }
+
+        if(id_form_field){
+          //form field sudah ada sebelumnya
+          //update form_field
+          await db.update_form_field(id_form_field, pertanyaanArray[j].pertanyaan, pertanyaanArray[j].tipe, pertanyaanArray[j].deskripsi, pertanyaanArray[j].required);
+          //delete form_field lama
+          await db.delete_form_field_option(id_form_field);
+          //tambahkan option baru
+          let newOptions = pertanyaanArray[j].option;
+          for(let k=0; k<newOptions.length; k++){
+            await db.insert_pertanyaan_pilihan(id_form_field, newOptions[k], k);
+          }
+        }
+        else{
+          //form field belum ada sebelumnya
+          //masukan form field
+          await db.insert_pertanyaan(id_form, i, j, pertanyaanArray[j].pertanyaan, pertanyaanArray[j].tipe, pertanyaanArray[j].deskripsi, pertanyaanArray[j].required);
+          //cari id_form_field
+          let id_form_field_temp = await db.getFormFieldId(id_form, i, j);
+          let id_form_field = null;
+          if(id_form_field_temp && id_form_field_temp[0] && id_form_field_temp[0].id_form_field){
+            id_form_field = id_form_field_temp[0].id_form_field;
+          }
+          //tambahkan option baru
+          let newOptions = pertanyaanArray[j].option;
+          for(let k=0; k<newOptions.length; k++){
+            await db.insert_pertanyaan_pilihan(id_form_field, newOptions[k], k);
+          }
+        }
+      }
+    }
+    res.json("Selesai");
+  }
+  catch(e){
+    console.log(e);
+    res.sendStatus(500);
+  }
+})
 
 router.get("/all", async (req, res, next) => {
 

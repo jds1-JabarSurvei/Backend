@@ -226,7 +226,10 @@ db.insert_form_section = (id_form, id_bagian, judul, deskripsi) => { // db form 
   });
 };
 
-db.insert_pertanyaan = (id_form, bagian,urutan,pertanyaan,tipe,deskripsi,required) => { // db form field
+db.insert_pertanyaan = (id_form, bagian, urutan, pertanyaan, tipe, deskripsi, required) => { // db form field
+  console.log("Ini nilai requiredd");
+  console.log(required);
+  console.log("Ini nilai requiredd");
   return new Promise((resolve, reject) => {
     pool.query(
       `INSERT INTO form_field (id_form, bagian,urutan,pertanyaan,tipe,deskripsi,required) 
@@ -305,7 +308,7 @@ db.delete_form = (id_form) => { // db form field result
   });
 };
 
-db.delete_response = (id_form,id_response) => { // db form field result
+db.delete_response = (id_form, id_response) => { // db form field result
   return new Promise((resolve, reject) => {
     pool.query(
       `DELETE FROM form_result where id_form = ? AND id_response = ?`,
@@ -319,6 +322,120 @@ db.delete_response = (id_form,id_response) => { // db form field result
     );
   });
 };
+
+db.update_form_info = (id_form, new_title) => {
+  console.log("Update form info dipanggil");
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `UPDATE form SET nama_form=? WHERE id_form=?`,
+      [new_title, id_form],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
+db.update_form_section = (id_form, id_bagian, new_title, new_description) => {
+  console.log("Update form section dipanggil");
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `SELECT id_section from form_section WHERE id_form=? AND id_bagian=?;`,
+      [id_form, id_bagian],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        let id_section = null;
+        if(result && result[0] && result[0].id_section){
+          id_section = result[0].id_section;
+        }
+        if(id_section){
+          //Bagian sudah ada sebelumnya
+          pool.query(
+            `UPDATE form_section SET judul=?, deskripsi=? WHERE id_section=?`,
+            [new_title, new_description, id_section],
+            (err, result) => {
+              if(err){
+                return reject(err);
+              }
+              return resolve(result);
+            }
+          );
+        }
+        else{
+          //Menambah bagian baru
+          pool.query(
+            `INSERT INTO form_section (id_form, id_bagian, judul, deskripsi) VALUES(?, ?, ?, ?)`,
+            [id_form, id_bagian, new_title, new_description],
+            (err, result) => {
+              if(err){
+                return reject(err);
+              }
+              return resolve(result);
+            }
+          );
+        }
+      }
+    )
+  })
+  
+};
+
+db.getFormFieldId = (id_form, bagian, urutan) => {
+  return new Promise((resolve, rejcet) => {
+    pool.query(
+      `SELECT id_form_field from form_field WHERE id_form=? AND bagian=? AND urutan=?`, 
+      [id_form, bagian, urutan],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        else{
+          return resolve(result);
+        }
+    })
+  })
+}
+
+db.update_form_field = (id_form_field, new_pertanyaan, new_tipe, new_deskripsi, new_required) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `UPDATE form_field SET pertanyaan=?, tipe=?, deskripsi=?, required=? WHERE id_form_field=?`,
+      [new_pertanyaan, new_tipe, new_deskripsi, new_required, id_form_field],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        else{
+          return resolve("Update form field berhasil");
+        }
+      }
+    )
+  })
+}
+
+db.delete_form_field_option = (id_form_field) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `DELETE FROM form_field_option WHERE id_form_field=?`,
+      [id_form_field],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        else{
+          return resolve("Delete form field berhasil");
+        }
+      }
+    ) 
+  })
+}
+
+
 
 
 module.exports = db;
