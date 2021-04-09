@@ -174,14 +174,14 @@ async function getSpecificResponse(idResponse){
             urutan: results[i].urutan,
             tipe: results[i].tipe,
             option: option,
-            value: [results[i].value]
+            value: [{"response_id": idResponse ,"jawaban": [results[i].value]}]
           })
           formField[results[i].id_form_field]={bagian: results[i].bagian, idx: bagianArray[results[i].bagian].response.length-1};
         }
         else{ //user select multiple answers, add to the value
           let tempBagian = formField[results[i].id_form_field].bagian;
           let tempIdx = formField[results[i].id_form_field].idx;
-          bagianArray[tempBagian].response[tempIdx].value.push(results[i].value);
+          bagianArray[tempBagian].response[tempIdx].value[0].jawaban.push(results[i].value);
         }
       }
       else{
@@ -196,7 +196,7 @@ async function getSpecificResponse(idResponse){
             urutan: results[i].urutan,
             tipe: results[i].tipe,
             option: option,
-            value: [results[i].value]
+            value: [{"response_id": idResponse ,"jawaban": [results[i].value]}]
           }]
         };
         if(sectionDescriptionsResult[0] && sectionDescriptionsResult[0].deskripsi){
@@ -225,12 +225,26 @@ router.get("/allFormResponses/:formID", async(req, res, next) => {
     for(let i=0; i<result.length; i++){
       resultArray.push(result[i].id_form_result);
     }
-    let listOfResponses=[];
-    for(let i=0; i<resultArray.length; i++){
-      let response = await getSpecificResponse(resultArray[i]);
-      listOfResponses.push(response);
+    // let listOfResponses=[];
+    let finalResponse = await getSpecificResponse(resultArray[0]);
+    for(let i=1; i<resultArray.length; i++){
+      let responseId = resultArray[i]
+      let response = await getSpecificResponse(responseId);
+      //iterasi setiap bagian dari response
+      let responseAllBagian = response.responses;
+      // listOfResponses.push(response);
+      for(let j=0; j<responseAllBagian.length; j++){
+        let nomorBagian = responseAllBagian[j].bagian;
+        let responseAllPertanyaan = responseAllBagian[j].response;
+        for(let k=0; k<responseAllPertanyaan.length; k++){
+          let nomorPertanyaan = responseAllPertanyaan[k].urutan;
+          let jawabanPertanyaan = responseAllPertanyaan[k].value[0];
+          finalResponse.responses[nomorBagian].response[nomorPertanyaan].value.push(jawabanPertanyaan);
+        }
+      }
     }
-    res.json(listOfResponses);
+
+    res.json(finalResponse);
   }
   catch(e){
     console.log(e);
