@@ -65,7 +65,7 @@ db.getFormFields = (idForm) => {
   /*MYSQL query untuk mendapatkan semua field dari suatu form*/
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT * from form inner join form_field using(id_form) where id_form=?;`,[idForm],
+      `SELECT * from form inner join form_field using(id_form) where id_form=? and form_field.isdeleted is null;`,[idForm],
       (err, result) => {
         if (err){
           return reject(err);
@@ -80,7 +80,7 @@ db.getFormFieldOption = (id_form_field) => {
   /*MYSQL query untuk mendapatkan semua opsional dari pertanyaan bertipe option*/
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT * from form_field_option where id_form_field=?;`, [id_form_field],
+      `SELECT * from form_field_option where id_form_field=? and isdeleted is null;`, [id_form_field],
       (err, result) => {
         if(err){
           return reject(err);
@@ -95,7 +95,7 @@ db.getSectionDescription = (id_form, id_bagian) => {
   /*MySQL query untuk mendapatkan deskripsi dari suatu section */
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT * from form_section where id_form=? and id_bagian=?;`, [id_form, id_bagian],
+      `SELECT * from form_section where id_form=? and id_bagian=? and isdeleted is null;`, [id_form, id_bagian],
       (err, result) => {
         if(err){
           return reject(err);
@@ -110,7 +110,7 @@ db.getFormEachResponse = (id_form_result) => {
   /*Mendapatkan respons dengan id respons tertentu dari form dengan id tertentu */
   return new Promise((resolve, reject) => {
     pool.query(
-      `select id_form, table1.id_form_result, id_pembuat, nama_form, form_field.id_form_field, bagian, urutan, pertanyaan, tipe, deskripsi, required, id_form_field_value, id_form_option, value from ((select * from  form_result join form using (id_form) where id_form_result=?) as table1 join form_field using (id_form)) left join form_field_value on (table1.id_form_result = form_field_value.id_form_result and form_field.id_form_field=form_field_value.id_form_field);`,[id_form_result],
+      `select id_form, table1.id_form_result, id_pembuat, nama_form, form_field.id_form_field, bagian, urutan, pertanyaan, tipe, deskripsi, required, id_form_field_value, id_form_option, value from (select * from  form_result join form using (id_form) where id_form_result=?) as table1 join form_field using (id_form) left join form_field_value on (table1.id_form_result = form_field_value.id_form_result and form_field.id_form_field=form_field_value.id_form_field) where form_field.isdeleted is null;`,[id_form_result],
       (err, result) => {
         if(err){
           return reject(err);
@@ -169,7 +169,7 @@ db.getUserInfo = (userID) => {
 db.getListOfForms = () => {
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT * from form`,
+      `SELECT * from form where isdeleted is null;`,
       (err, result) => {
         if(err){
           return reject(err);
@@ -183,7 +183,7 @@ db.getListOfForms = () => {
 db.getListOfMatchedForms = (titleSubstring) => {
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT * from form where nama_form like ?;`,["%" + titleSubstring + "%"],
+      `SELECT * from form where nama_form like ? and isdeleted is null;`,["%" + titleSubstring + "%"],
       (err, result) => {
         if(err){
           return reject(err);
@@ -296,7 +296,7 @@ db.insert_jawaban_pertanyaan = (id_form_result, id_form_field, id_form_option, v
 db.delete_form = (id_form) => { // db form field result
   return new Promise((resolve, reject) => {
     pool.query(
-      `DELETE FROM form where id_form = ?`,
+      `UPDATE form SET isdeleted="1" where id_form=?`,
       [id_form],
       (err, result) => {
         if (err) {
@@ -308,20 +308,20 @@ db.delete_form = (id_form) => { // db form field result
   });
 };
 
-db.delete_response = (id_form, id_response) => { // db form field result
-  return new Promise((resolve, reject) => {
-    pool.query(
-      `DELETE FROM form_result where id_form = ? AND id_response = ?`,
-      [id_form, id_response],
-      (err, result) => {
-        if (err) {
-          return reject(err);
-        }
-        return resolve(result);
-      }
-    );
-  });
-};
+// db.delete_response = (id_form, id_response) => { // db form field result
+//   return new Promise((resolve, reject) => {
+//     pool.query(
+//       `DELETE FROM form_result where id_form = ? AND id_response = ?`,
+//       [id_form, id_response],
+//       (err, result) => {
+//         if (err) {
+//           return reject(err);
+//         }
+//         return resolve(result);
+//       }
+//     );
+//   });
+// };
 
 db.update_form_info = (id_form, new_title) => {
   console.log("Update form info dipanggil");
@@ -418,22 +418,23 @@ db.update_form_field = (id_form_field, new_pertanyaan, new_tipe, new_deskripsi, 
   })
 }
 
-db.delete_form_field_option = (id_form_field) => {
-  return new Promise((resolve, reject) => {
-    pool.query(
-      `DELETE FROM form_field_option WHERE id_form_field=?`,
-      [id_form_field],
-      (err, result) => {
-        if(err){
-          return reject(err);
-        }
-        else{
-          return resolve("Delete form field berhasil");
-        }
-      }
-    ) 
-  })
-}
+// db.delete_form_field_option = (id_form_field) => {
+//   return new Promise((resolve, reject) => {
+//     pool.query(
+//       ``
+//       `DELETE FROM form_field_option WHERE id_form_field=?`,
+//       [id_form_field],
+//       (err, result) => {
+//         if(err){
+//           return reject(err);
+//         }
+//         else{
+//           return resolve("Soft delete form field berhasil");
+//         }
+//       }
+//     ) 
+//   })
+// }
 
 
 
