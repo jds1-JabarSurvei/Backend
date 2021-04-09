@@ -8,7 +8,7 @@ const fileUpload = require('express-fileupload');
 const path = require('path');
 const router = express.Router();
 const uploader = router.use(fileUpload());
-
+router.use("/images", express.static(path.join(__dirname, '../db/images')))
 router.post("/register", async (req, res, next) => {
   /*POST request untuk meregister user baru sesuai parameter body*/
   let email = req.body.email;
@@ -18,7 +18,7 @@ router.post("/register", async (req, res, next) => {
   let gender = req.body.gender;
   let address = req.body.address;
   let birthday = req.body.birthday;
-
+  res.download()
   try {
     let hash = await bcrypt.hash(password, saltRounds);
     let results = await db.register(email, username, hash, contactNumber, gender, address, birthday);
@@ -234,6 +234,7 @@ router.get("/allFormResponses/:formID", async(req, res, next) => {
   }
   catch(e){
     console.log(e);
+    res.sendStatus(500);
   }
 })
 
@@ -354,7 +355,7 @@ router.get("/listOfForms", async(req, res, next) => {
   }
   catch(e){
     console.log(e);
-    res.sendStatus(500);
+    res.json({message:"tidak ditemukan"});
   }
 })
 
@@ -454,17 +455,22 @@ uploader.post("/upload",(req,res) =>{
   if(req.files === null) {
     return res.status(400).json({ status: "failed", msg: 'No file uploaded'})
   }
-  const file = req.files.file;  
-  var filelocation = path.join(__dirname, '../db/images',file.name)
+  const file = req.files.file;
+  const filename = req.body.name;
+  const id_form = req.body.id_form;
+  
+  var filelocation = path.join(__dirname, '../db/images',filename);
+  await db.insert_form_image(filename, `/images/${filename}`, id_form);
   file.mv(filelocation,err => {
     if(err) {
       console.error(err);
       return res.status(500).send(err);
     }
 
-    res.json({status: "success",filename:`/images/${file.name}`})
+    res.json({status: "success",filename:`${filename}`, url:`/images/${filename}`});
   });
 });
+
 
 router.get("/all", async (req, res, next) => {
 
