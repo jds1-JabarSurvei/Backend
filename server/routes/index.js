@@ -142,13 +142,13 @@ router.get("/formResponseIds/:formID", async(req, res, next) => {
   }
 })
 
-async function getSpecificResponse(idResponse){
+async function getSpecificResponse(idResponse, formID){
   /**Mendapatkan specific respons dengan idResponse tertentu */
   try{
     let results = await db.getFormEachResponse(idResponse);
-    let formInfo = await db.getFormInfo(results[0].id_form);
     let returnResult={};
-    returnResult.id_form= results[0].id_form;
+    let formInfo = await db.getFormInfo(formID);
+    returnResult.id_form= formID;
     let dataPembuat = await db.getUserInfo(formInfo[0].id_pembuat);
     returnResult.pembuat = dataPembuat[0].username;
     returnResult.judulForm = formInfo[0].nama_form;
@@ -205,8 +205,6 @@ async function getSpecificResponse(idResponse){
       }
     }
     returnResult.responses = bagianArray;
-    //console.log(bagianArray);
-    //console.log(formField);
     return(returnResult);
   }
   catch(e){
@@ -223,11 +221,11 @@ router.get("/allFormResponses/:formID", async(req, res, next) => {
     for(let i=0; i<result.length; i++){
       resultArray.push(result[i].id_form_result);
     }
-    let finalResponse = await getSpecificResponse(resultArray[0]);
+    let finalResponse = await getSpecificResponse(resultArray[0], req.params.formID);
     delete finalResponse["response_id"];
     for(let i=1; i<resultArray.length; i++){
       let responseId = resultArray[i]
-      let response = await getSpecificResponse(responseId);
+      let response = await getSpecificResponse(responseId, req.params.formID);
       //iterasi setiap bagian dari response
       let responseAllBagian = response.responses;
       // listOfResponses.push(response);
@@ -382,12 +380,6 @@ router.post("/buatform", async (req, res, next) => {
   let nama_form = req.body.judulForm;
   let bagianArray = req.body.bagian;
 
-  // console.log("jshjahsdhajd");
-  // console.log(req.body);
-  // console.log("asjhajdhejdas");
-  // console.log(bagianArray[0].pertanyaan);
-  // console.log("asdaheudahd");
-
   try {
     let id_form = await db.insert_form(id_pembuat,nama_form);
     id_form = id_form['insertId'];
@@ -473,9 +465,6 @@ router.post("/editform", async(req, res, next) => {
     let id_form = req.body.id_form;
     let judulForm = req.body.judulForm;
     let bagianArray = req.body.bagian;
-    // console.log(id_form);
-    // console.log(judulForm);
-    // console.log(bagianArray);
     //Update form info
     await db.update_form_info(id_form, judulForm);
     for(let i=0; i<bagianArray.length; i++){
@@ -484,10 +473,8 @@ router.post("/editform", async(req, res, next) => {
       let result = await db.update_form_section(id_form, i, bagian.judul, bagian.deskripsi);
       // Update pertanyaan
       let pertanyaanArray = bagian.pertanyaan;
-      console.log("Panjang array pertanyaan: " + pertanyaanArray.length);
+      // console.log("Panjang array pertanyaan: " + pertanyaanArray.length);
       for(let j=0; j<pertanyaanArray.length; j++){
-        // console.log("Masukk Loop ke-" + j);
-        // await db.update_form_field(id_form, i, j, pertanyaanArray[i].pertanyaan, pertanyaanArray[i].tipe, pertanyaanArray[i].deskripsi, pertanyaanArray[i].required, pertanyaanArray[i].option);
         let id_form_field_temp = await db.getFormFieldId(id_form, i, j);
         let id_form_field = null;
         if(id_form_field_temp && id_form_field_temp[0] && id_form_field_temp[0].id_form_field){
@@ -498,12 +485,25 @@ router.post("/editform", async(req, res, next) => {
           //form field sudah ada sebelumnya
           //update form_field
           await db.update_form_field(id_form_field, pertanyaanArray[j].pertanyaan, pertanyaanArray[j].tipe, pertanyaanArray[j].deskripsi, pertanyaanArray[j].required);
-          //delete form_field lama
-          await db.delete_form_field_option(id_form_field);
           //tambahkan option baru
           let newOptions = pertanyaanArray[j].option;
           for(let k=0; k<newOptions.length; k++){
-            await db.insert_pertanyaan_pilihan(id_form_field, newOptions[k], k);
+            let form_field_option_id = await db.get_form_field_option_id(id_form_field, k);
+            form_field_option_id = form_field_option_id && form_field_option_id[0] && form_field_option_id[0].id_form_field_option;
+            if(form_field_option_id){
+              //sudah ada sebelumnya
+              await db.update_form_field_option(form_field_option_id, newOptions[k], k);
+            }
+            else{
+              await db.insert_pertanyaan_pilihan(id_form_field, newOptions[k], k);
+            }
+          }
+
+          //soft delete option yang udah gak ada -> yaitu mulai len(newOptions) sampe highest urutan option dari form field tersebut
+          let old_highest_urutan_option = await db.get_highest_urutan_option(id_form_field);
+          old_highest_urutan_option = old_highest_urutan_option && old_highest_urutan_option[0] && old_highest_urutan_option[0].urutan;
+          for(let oldIdx=newOptions.length; oldIdx<=old_highest_urutan_option; oldIdx++){
+            db.soft_delete_option(id_form_field, oldIdx);
           }
         }
         else{
@@ -512,10 +512,7 @@ router.post("/editform", async(req, res, next) => {
           await db.insert_pertanyaan(id_form, i, j, pertanyaanArray[j].pertanyaan, pertanyaanArray[j].tipe, pertanyaanArray[j].deskripsi, pertanyaanArray[j].required);
           //cari id_form_field
           let id_form_field_temp = await db.getFormFieldId(id_form, i, j);
-          let id_form_field = null;
-          if(id_form_field_temp && id_form_field_temp[0] && id_form_field_temp[0].id_form_field){
-            id_form_field = id_form_field_temp[0].id_form_field;
-          }
+          let id_form_field = id_form_field_temp && id_form_field_temp[0] && id_form_field_temp[0].id_form_field;
           //tambahkan option baru
           let newOptions = pertanyaanArray[j].option;
           for(let k=0; k<newOptions.length; k++){
@@ -523,17 +520,46 @@ router.post("/editform", async(req, res, next) => {
           }
         }
       }
+      //softdelete pertanyaan yang udah gak ada
+      let old_highest_urutan_field = await db.get_highest_urutan_pertanyaan(id_form, i);
+      old_highest_urutan_field = old_highest_urutan_field && old_highest_urutan_field[0] && old_highest_urutan_field[0].urutan;
+      for(let oldIdx=pertanyaanArray.length; oldIdx<=old_highest_urutan_field; oldIdx++){
+        db.soft_delete_pertanyaan(id_form, i, oldIdx);
+      }
     }
+    //bagian yang udah gak ada lagi
+    let old_highest_bagian = await db.get_highest_form_bagian(id_form);
+    old_highest_bagian = old_highest_bagian[0].id_bagian;
+    for(let oldIdx=bagianArray.length; oldIdx<=old_highest_bagian; oldIdx++){
+      console.log("Bagian yang mau diilangin");
+      console.log(oldIdx);
+      console.log("Bagian yang mau diilangin");
+      //softdelete bagian
+      await db.soft_delete_bagian(id_form, oldIdx);
+      console.log("Bagian " + oldIdx + " berhasil disoft delete");
+      // //softdelete pertanyaan" dari bagian itu
+      let old_highest_urutan_field = await db.get_highest_urutan_pertanyaan(id_form, oldIdx);
+      
+      if(old_highest_urutan_field && old_highest_urutan_field[0]){
+        console.log("Masukk sinii gak yyaaa??");
+        for(let qIdx=0; qIdx<=old_highest_urutan_field[0].urutan; qIdx++){
+          db.soft_delete_pertanyaan(id_form, oldIdx, qIdx);
+        }
+      }
+
+    }
+
     res.json("Selesai");
   }
+
   catch(e){
     console.log(e);
     res.sendStatus(500);
   }
+
 })
 
 router.get("/all", async (req, res, next) => {
-
   try {
     let results = await db.all();
     res.json(results);

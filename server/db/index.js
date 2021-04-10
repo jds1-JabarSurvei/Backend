@@ -324,10 +324,10 @@ db.delete_form = (id_form) => { // db form field result
 // };
 
 db.update_form_info = (id_form, new_title) => {
-  console.log("Update form info dipanggil");
+  // console.log("Update form info dipanggil");
   return new Promise((resolve, reject) => {
     pool.query(
-      `UPDATE form SET nama_form=? WHERE id_form=?`,
+      `UPDATE form SET nama_form=?, isdeleted=NULL WHERE id_form=?`,
       [new_title, id_form],
       (err, result) => {
         if(err){
@@ -340,7 +340,7 @@ db.update_form_info = (id_form, new_title) => {
 };
 
 db.update_form_section = (id_form, id_bagian, new_title, new_description) => {
-  console.log("Update form section dipanggil");
+  // console.log("Update form section dipanggil");
   return new Promise((resolve, reject) => {
     pool.query(
       `SELECT id_section from form_section WHERE id_form=? AND id_bagian=?;`,
@@ -356,7 +356,7 @@ db.update_form_section = (id_form, id_bagian, new_title, new_description) => {
         if(id_section){
           //Bagian sudah ada sebelumnya
           pool.query(
-            `UPDATE form_section SET judul=?, deskripsi=? WHERE id_section=?`,
+            `UPDATE form_section SET judul=?, deskripsi=?, isdeleted=NULL WHERE id_section=?`,
             [new_title, new_description, id_section],
             (err, result) => {
               if(err){
@@ -404,7 +404,7 @@ db.getFormFieldId = (id_form, bagian, urutan) => {
 db.update_form_field = (id_form_field, new_pertanyaan, new_tipe, new_deskripsi, new_required) => {
   return new Promise((resolve, reject) => {
     pool.query(
-      `UPDATE form_field SET pertanyaan=?, tipe=?, deskripsi=?, required=? WHERE id_form_field=?`,
+      `UPDATE form_field SET pertanyaan=?, tipe=?, deskripsi=?, required=?, isdeleted=NULL WHERE id_form_field=?`,
       [new_pertanyaan, new_tipe, new_deskripsi, new_required, id_form_field],
       (err, result) => {
         if(err){
@@ -412,6 +412,142 @@ db.update_form_field = (id_form_field, new_pertanyaan, new_tipe, new_deskripsi, 
         }
         else{
           return resolve("Update form field berhasil");
+        }
+      }
+    )
+  })
+}
+
+db.get_form_field_option_id = (id_form_field, urutan) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'SELECT id_form_field_option FROM form_field_option WHERE id_form_field=? AND urutan=?',
+      [id_form_field, urutan],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        else{
+          return resolve(result);
+        }
+      }
+    )
+  })
+}
+
+db.update_form_field_option = (id_form_field_option, newValue, urutan) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'UPDATE form_field_option SET nilai=?, isdeleted=NULL where id_form_field_option=? and urutan=?;',
+      [newValue, id_form_field_option, urutan],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        else{
+          return resolve(result);
+        }
+      }
+    )
+  })
+}
+
+db.get_highest_urutan_option = (id_form_field) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'select urutan from form_field_option where id_form_field=? order by urutan desc limit 0,1;',
+      [id_form_field],
+      (err, result) => {
+        if(err){
+          return reject(err)
+        }
+        else{
+          return resolve(result)
+        }
+      }
+    )
+  })
+}
+
+db.get_highest_urutan_pertanyaan = (id_form, bagian) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'select urutan from form_field where id_form=? and bagian=? order by urutan desc limit 0,1;',
+      [id_form, bagian],
+      (err, result) => {
+        if(err){
+          return reject(err)
+        }
+        else{
+          return resolve(result)
+        }
+      }
+    )
+  })
+}
+
+db.get_highest_form_bagian = (id_form) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'select id_bagian from form_section where id_form=? order by id_bagian desc limit 0,1;',
+      [id_form],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        else{
+          return resolve(result);
+        }
+      }
+    )
+  })
+}
+
+db.soft_delete_option = (id_form_field, urutan) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'update form_field_option set isdeleted="1" where id_form_field=? and urutan=?;',
+      [id_form_field, urutan],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        else{
+          return resolve(result);
+        }
+      }
+    )
+  })
+}
+
+db.soft_delete_pertanyaan = (id_form, bagian, urutan) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'update form_field set isdeleted="1" where id_form=? and bagian=? and urutan=?;',
+      [id_form, bagian, urutan],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        else{
+          return resolve(result);
+        }
+      }
+    )
+  })
+}
+
+db.soft_delete_bagian = (id_form, bagian) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'update form_section set isdeleted="1" where id_form=? and id_bagian=?;',
+      [id_form, bagian],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        else{
+          return resolve(result);
         }
       }
     )
