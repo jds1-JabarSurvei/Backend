@@ -350,6 +350,10 @@ router.get("/listOfForms/:titleSubstring", async(req, res, next) => {
         user[formsList[i].id_pembuat] = (await db.getUserInfo(formsList[i].id_pembuat))[0].username;
       } 
       temp.owner = user[formsList[i].id_pembuat];
+      let imageres = await db.getPathImages(temp.id);
+      let image = {name:imageres[0].filename, path:imageres[0].path};
+      temp.image = image;
+      returnResult.image = image;
       let time = formsList[i].time;
       temp.time = await getUnixtime(time);
       returnResult.push(temp);
@@ -376,6 +380,9 @@ router.get("/listOfForms", async(req, res, next) => {
         user[formsList[i].id_pembuat] = (await db.getUserInfo(formsList[i].id_pembuat))[0].username;
       } 
       temp.owner = user[formsList[i].id_pembuat];
+      let imageres = await db.getPathImages(temp.id);
+      let image = {name:imageres[0].filename, path:imageres[0].path};
+      temp.image = image;
       let time = formsList[i].time;
       temp.time = await getUnixtime(time);
       returnResult.push(temp);
