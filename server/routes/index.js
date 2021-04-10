@@ -493,14 +493,14 @@ uploader.post("/upload",async(req,res)  =>{
   
   const file = req.files.file;
   const filename = req.body.name;
-  var typefile = filename.split('.').pop();
+  // var typefile = filename.split('.').pop();
   const id_form = req.body.id_form;
   var hashedfilename = await bcrypt.hash(filename, 11);
   hashedfilename = (hashedfilename.replace(/[\W_]+/g,""));
   var filelocation = "";
   var i = 0;
   while (1){
-    filelocation = path.join(__dirname, '../db/images',`${hashedfilename}.${typefile}`);
+    filelocation = path.join(__dirname, '../db/images',`${hashedfilename}.jpg`);
     
     if (!fs.existsSync(filelocation)){
       break;  
@@ -508,14 +508,14 @@ uploader.post("/upload",async(req,res)  =>{
     i++;
     hashedfilename = hashedfilename + String(i);
   }
-  await db.insert_form_image(filename, `/images/${hashedfilename}.${typefile}`, id_form);
+  await db.insert_form_image(filename, `/images/${hashedfilename}.jpg`, id_form);
   file.mv(filelocation,err => {
     if(err) {
       console.error(err);
       return res.status(500).send(err);
     }
 
-    res.json({status: "success",filename:`${filename}`, url:`/images/${hashedfilename}.${typefile}`});
+    res.json({status: "success",filename:`${filename}`, url:`/images/${hashedfilename}.jpg`});
   });
 });
 
