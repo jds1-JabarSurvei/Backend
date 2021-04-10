@@ -249,6 +249,7 @@ router.get("/allFormResponses/:formID", async(req, res, next) => {
   catch(e){
     console.log(e);
     res.sendStatus(500);
+    res.json({message:"tidak ditemukan form"});
   }
 })
 
