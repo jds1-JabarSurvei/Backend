@@ -320,5 +320,33 @@ db.delete_response = (id_form,id_response) => { // db form field result
   });
 };
 
+db.insert_form_image = (filename, path, id_form) => { // db form field result
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `INSERT INTO form_image (filename, path, id_form) 
+      VALUES(?, ?, ?)`,
+      [filename, path, id_form],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
 
+db.getPathImages = (id_form) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `SELECT filename,path from form_image where id_form = ?;`,[id_form],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    )
+  })
+}
 module.exports = db;

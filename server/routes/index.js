@@ -4,8 +4,13 @@ const bcrypt = require("bcrypt");
 const nodemon = require("nodemon");
 const { insert_form } = require("../db");
 const saltRounds = 10;
-
+const fileUpload = require('express-fileupload');
+const path = require('path');
+const { strict } = require("assert");
 const router = express.Router();
+const uploader = router.use(fileUpload());
+router.use("/images", express.static(path.join(__dirname, '../db/images')))
+const fs = require('fs');
 
 router.post("/register", async (req, res, next) => {
   /*POST request untuk meregister user baru sesuai parameter body*/
@@ -16,7 +21,7 @@ router.post("/register", async (req, res, next) => {
   let gender = req.body.gender;
   let address = req.body.address;
   let birthday = req.body.birthday;
-
+  res.download()
   try {
     let hash = await bcrypt.hash(password, saltRounds);
     let results = await db.register(email, username, hash, contactNumber, gender, address, birthday);
@@ -73,6 +78,11 @@ router.get("/formQuestions/:formID", async(req, res, next) => {
     let dataPembuat = await db.getUserInfo(firstResult.id_pembuat);
     returnResult.pembuat = dataPembuat[0].username;
     returnResult.judulForm = firstResult.nama_form;
+    let time = firstResult.time;
+    returnResult.time = await getUnixtime(time);
+    let imageres = await db.getPathImages(req.params.formID);
+    let image = {name:imageres[0].filename, path:imageres[0].path};
+    returnResult.image = image;
     let bagianArray=[]
     for (let i=0 ; i<results.length; i++){
       let option=[];
@@ -118,6 +128,8 @@ router.get("/formQuestions/:formID", async(req, res, next) => {
         bagianArray.push(temp);
       }
     }
+
+
     returnResult.pertanyaan = bagianArray;
 
     res.json(returnResult);
@@ -246,6 +258,8 @@ router.get("/allFormResponses/:formID", async(req, res, next) => {
   }
   catch(e){
     console.log(e);
+    res.sendStatus(500);
+    res.json({message:"tidak ditemukan form"});
   }
 })
 
@@ -336,6 +350,12 @@ router.get("/listOfForms/:titleSubstring", async(req, res, next) => {
         user[formsList[i].id_pembuat] = (await db.getUserInfo(formsList[i].id_pembuat))[0].username;
       } 
       temp.owner = user[formsList[i].id_pembuat];
+      let imageres = await db.getPathImages(temp.id);
+      let image = {name:imageres[0].filename, path:imageres[0].path};
+      temp.image = image;
+      returnResult.image = image;
+      let time = formsList[i].time;
+      temp.time = await getUnixtime(time);
       returnResult.push(temp);
     }
     res.send(returnResult);
@@ -360,13 +380,18 @@ router.get("/listOfForms", async(req, res, next) => {
         user[formsList[i].id_pembuat] = (await db.getUserInfo(formsList[i].id_pembuat))[0].username;
       } 
       temp.owner = user[formsList[i].id_pembuat];
+      let imageres = await db.getPathImages(temp.id);
+      let image = {name:imageres[0].filename, path:imageres[0].path};
+      temp.image = image;
+      let time = formsList[i].time;
+      temp.time = await getUnixtime(time);
       returnResult.push(temp);
     }
     res.send(returnResult);
   }
   catch(e){
     console.log(e);
-    res.sendStatus(500);
+    res.json({message:"tidak ditemukan"});
   }
 })
 
@@ -381,7 +406,6 @@ router.post("/buatform", async (req, res, next) => {
   let id_pembuat = req.body.user_id;
   let nama_form = req.body.judulForm;
   let bagianArray = req.body.bagian;
-
   try {
     let id_form = await db.insert_form(id_pembuat,nama_form);
     id_form = id_form['insertId'];
@@ -461,6 +485,43 @@ router.post("/deleteresponse", async(req,res,next) =>{
     res.sendStatus(500);
   }
 });
+
+uploader.post("/upload",async(req,res)  =>{ 
+  if(req.files === null) {
+    return res.status(400).json({ status: "failed", msg: 'No file uploaded'})
+  }
+  
+  const file = req.files.file;
+  const filename = req.body.name;
+  var typefile = filename.split('.').pop();
+  const id_form = req.body.id_form;
+  var hashedfilename = await bcrypt.hash(filename, 11);
+  hashedfilename = (hashedfilename.replace(/[\W_]+/g,""));
+  var filelocation = "";
+  var i = 0;
+  while (1){
+    filelocation = path.join(__dirname, '../db/images',`${hashedfilename}.${typefile}`);
+    
+    if (!fs.existsSync(filelocation)){
+      break;  
+    }
+    i++;
+    hashedfilename = hashedfilename + String(i);
+  }
+  await db.insert_form_image(filename, `/images/${hashedfilename}.${typefile}`, id_form);
+  file.mv(filelocation,err => {
+    if(err) {
+      console.error(err);
+      return res.status(500).send(err);
+    }
+
+    res.json({status: "success",filename:`${filename}`, url:`/images/${hashedfilename}.${typefile}`});
+  });
+});
+
+async function getUnixtime(time){
+  return Math.floor(new Date(time).getTime()/1000);
+}
 
 router.get("/all", async (req, res, next) => {
 
