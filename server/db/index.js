@@ -59,8 +59,6 @@ db.login = (email) => {
   });
 };
 
-
-
 db.getFormFields = (idForm) => {
   /*MYSQL query untuk mendapatkan semua field dari suatu form*/
   return new Promise((resolve, reject) => {
@@ -227,9 +225,9 @@ db.insert_form_section = (id_form, id_bagian, judul, deskripsi) => { // db form 
 };
 
 db.insert_pertanyaan = (id_form, bagian, urutan, pertanyaan, tipe, deskripsi, required) => { // db form field
-  console.log("Ini nilai requiredd");
-  console.log(required);
-  console.log("Ini nilai requiredd");
+  // console.log("Ini nilai requiredd");
+  // console.log(required);
+  // console.log("Ini nilai requiredd");
   return new Promise((resolve, reject) => {
     pool.query(
       `INSERT INTO form_field (id_form, bagian,urutan,pertanyaan,tipe,deskripsi,required) 
@@ -308,21 +306,6 @@ db.delete_form = (id_form) => { // db form field result
   });
 };
 
-// db.delete_response = (id_form, id_response) => { // db form field result
-//   return new Promise((resolve, reject) => {
-//     pool.query(
-//       `DELETE FROM form_result where id_form = ? AND id_response = ?`,
-//       [id_form, id_response],
-//       (err, result) => {
-//         if (err) {
-//           return reject(err);
-//         }
-//         return resolve(result);
-//       }
-//     );
-//   });
-// };
-
 db.update_form_info = (id_form, new_title) => {
   // console.log("Update form info dipanggil");
   return new Promise((resolve, reject) => {
@@ -386,7 +369,7 @@ db.update_form_section = (id_form, id_bagian, new_title, new_description) => {
 };
 
 db.getFormFieldId = (id_form, bagian, urutan) => {
-  return new Promise((resolve, rejcet) => {
+  return new Promise((resolve, reject) => {
     pool.query(
       `SELECT id_form_field from form_field WHERE id_form=? AND bagian=? AND urutan=?`, 
       [id_form, bagian, urutan],
@@ -398,6 +381,41 @@ db.getFormFieldId = (id_form, bagian, urutan) => {
           return resolve(result);
         }
     })
+  })
+}
+
+db.getAllFormResponseID = (id_form) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'SELECT id_form_result as response_id from form_result where id_form=?',
+      [id_form],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        else{
+          let resultArray = result.map((obj) => obj.response_id);
+          return resolve(resultArray);
+        }
+      }
+    )
+  })
+}
+
+db.getFormFieldValue = (id_form_field) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'SELECT id_form_result as response_id, value as jawaban from form_field_value where id_form_field=?',
+      [id_form_field],
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        else{
+          return resolve(result);
+        }
+      }
+    )
   })
 }
 
@@ -553,25 +571,6 @@ db.soft_delete_bagian = (id_form, bagian) => {
     )
   })
 }
-
-// db.delete_form_field_option = (id_form_field) => {
-//   return new Promise((resolve, reject) => {
-//     pool.query(
-//       ``
-//       `DELETE FROM form_field_option WHERE id_form_field=?`,
-//       [id_form_field],
-//       (err, result) => {
-//         if(err){
-//           return reject(err);
-//         }
-//         else{
-//           return resolve("Soft delete form field berhasil");
-//         }
-//       }
-//     ) 
-//   })
-// }
-
 
 
 

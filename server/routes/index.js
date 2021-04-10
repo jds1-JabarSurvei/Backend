@@ -2,7 +2,7 @@ const express = require("express");
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const nodemon = require("nodemon");
-const { insert_form, update_form_section } = require("../db");
+const { insert_form, update_form_section, all } = require("../db");
 const saltRounds = 10;
 
 const router = express.Router();
@@ -62,14 +62,75 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-
-router.get("/formQuestions/:formID", async(req, res, next) => {
-  /*GET REQUEST untuk mendapatkan list pertanyaan yang akan diisi oleh responden */
+async function getFormQuestionsForResponse(formID){
   try{
-    let results = await db.getFormFields(req.params.formID);
+    let results = await db.getFormFields(formID);
     let firstResult = results[0];
     let returnResult={};
-    returnResult.id_form= req.params.formID;
+    returnResult.id_form= formID;
+    let dataPembuat = await db.getUserInfo(firstResult.id_pembuat);
+    returnResult.pembuat = dataPembuat[0].username;
+    returnResult.judulForm = firstResult.nama_form;
+    let bagianArray=[]
+    for (let i=0 ; i<results.length; i++){
+      let option=[];
+      if(results[i].tipe == "radio" || results[i].tipe == "checkbox"){
+        let options = await db.getFormFieldOption(results[i].id_form_field);
+        for(let i=0; i<options.length; i++){
+          option.push({nilai: options[i].nilai, id_form_option: options[i].id_form_field_option});
+        }
+      }
+      if(bagianArray[results[i].bagian]){
+        //bagian sudah ada sebelumnya
+        //tambahkan pertanyaan
+        bagianArray[results[i].bagian].response.push({
+          pertanyaan: results[i].pertanyaan,
+          id_form_field: results[i].id_form_field,
+          deskripsi: results[i].deskripsi,
+          required: results[i].required,
+          urutan: results[i].urutan,
+          tipe: results[i].tipe,
+          option: option
+        })
+      }
+      else{
+        //bagian belum ada sebelumnya
+        let sectionDescriptionsResult = await db.getSectionDescription(formID,results[i].bagian);
+        let temp = {
+          judul: `BAGIAN ${results[i].bagian+1}`,
+          bagian: results[i].bagian,
+          deskripsi: null,
+          response: [{
+            pertanyaan: results[i].pertanyaan,
+            id_form_field: results[i].id_form_field,
+            deskripsi: results[i].deskripsi,
+            required: results[i].required,
+            urutan: results[i].urutan,
+            tipe: results[i].tipe,
+            option: option
+          }]
+        };
+        if(sectionDescriptionsResult[0] && sectionDescriptionsResult[0].deskripsi){
+          temp["deskripsi"] = sectionDescriptionsResult[0].deskripsi;
+        }
+        bagianArray.push(temp);
+      }
+    }
+    returnResult.responses = bagianArray;
+    return returnResult;
+  }
+  catch(e){
+    console.log(e)
+    return null
+  }
+}
+
+async function getFormQuestions(formID){
+  try{
+    let results = await db.getFormFields(formID);
+    let firstResult = results[0];
+    let returnResult={};
+    returnResult.id_form= formID;
     let dataPembuat = await db.getUserInfo(firstResult.id_pembuat);
     returnResult.pembuat = dataPembuat[0].username;
     returnResult.judulForm = firstResult.nama_form;
@@ -97,7 +158,7 @@ router.get("/formQuestions/:formID", async(req, res, next) => {
       }
       else{
         //bagian belum ada sebelumnya
-        let sectionDescriptionsResult = await db.getSectionDescription(req.params.formID,results[i].bagian);
+        let sectionDescriptionsResult = await db.getSectionDescription(formID,results[i].bagian);
         let temp = {
           judul: `BAGIAN ${results[i].bagian+1}`,
           bagian: results[i].bagian,
@@ -119,6 +180,19 @@ router.get("/formQuestions/:formID", async(req, res, next) => {
       }
     }
     returnResult.pertanyaan = bagianArray;
+    return returnResult;
+  }
+  catch(e){
+    console.log(e)
+    return null
+  }
+}
+
+
+router.get("/formQuestions/:formID", async(req, res, next) => {
+  /*GET REQUEST untuk mendapatkan list pertanyaan yang akan diisi oleh responden */
+  try{
+    let returnResult = await getFormQuestions(req.params.formID);
 
     res.json(returnResult);
   }
@@ -142,108 +216,154 @@ router.get("/formResponseIds/:formID", async(req, res, next) => {
   }
 })
 
-async function getSpecificResponse(idResponse, formID){
-  /**Mendapatkan specific respons dengan idResponse tertentu */
-  try{
-    let results = await db.getFormEachResponse(idResponse);
-    let returnResult={};
-    let formInfo = await db.getFormInfo(formID);
-    returnResult.id_form= formID;
-    let dataPembuat = await db.getUserInfo(formInfo[0].id_pembuat);
-    returnResult.pembuat = dataPembuat[0].username;
-    returnResult.judulForm = formInfo[0].nama_form;
-    returnResult.response_id=idResponse;
-    let bagianArray=[];
-    let formField={};
-    for (let i=0 ; i<results.length; i++){
-      let option=[];
-      if(results[i].tipe == "radio" || results[i].tipe == "checkbox"){
-        let options = await db.getFormFieldOption(results[i].id_form_field);
-        for(let i=0; i<options.length; i++){
-          option.push({nilai: options[i].nilai});
-        }
-      }
-      if(bagianArray[results[i].bagian]){
-        //bagian sudah ada sebelumnya
-        //tambahkan pertanyaan
-        if(!formField[results[i].id_form_field]){ //form field tersebut belum pernah ada sebelumnya
-          bagianArray[results[i].bagian].response.push({
-            pertanyaan: results[i].pertanyaan,
-            urutan: results[i].urutan,
-            tipe: results[i].tipe,
-            option: option,
-            value: [{"response_id": idResponse ,"jawaban": [results[i].value]}]
-          })
-          formField[results[i].id_form_field]={bagian: results[i].bagian, idx: bagianArray[results[i].bagian].response.length-1};
-        }
-        else{ //user select multiple answers, add to the value
-          let tempBagian = formField[results[i].id_form_field].bagian;
-          let tempIdx = formField[results[i].id_form_field].idx;
-          bagianArray[tempBagian].response[tempIdx].value[0].jawaban.push(results[i].value);
-        }
-      }
-      else{
-        //bagian belum ada sebelumnya
-        let sectionDescriptionsResult = await db.getSectionDescription(results[i].id_form,results[i].bagian);
-        let temp = {
-          judul: sectionDescriptionsResult[0].judul,
-          bagian: results[i].bagian,
-          deskripsi: null,
-          response: [{
-            pertanyaan: results[i].pertanyaan,
-            urutan: results[i].urutan,
-            tipe: results[i].tipe,
-            option: option,
-            value: [{"response_id": idResponse ,"jawaban": [results[i].value]}]
-          }]
-        };
-        if(sectionDescriptionsResult[0] && sectionDescriptionsResult[0].deskripsi){
-          temp["deskripsi"] = sectionDescriptionsResult[0].deskripsi;
-        }
-        bagianArray.push(temp);
-        formField[results[i].id_form_field]={bagian: results[i].bagian, idx: bagianArray[results[i].bagian].response.length-1};
-      }
+// async function getSpecificResponse(idResponse, formID){
+//   /**Mendapatkan specific respons dengan idResponse tertentu */
+//   try{
+//     let results = await db.getFormEachResponse(idResponse);
+//     let returnResult={};
+//     let formInfo = await db.getFormInfo(formID);
+//     returnResult.id_form= formID;
+//     let dataPembuat = await db.getUserInfo(formInfo[0].id_pembuat);
+//     returnResult.pembuat = dataPembuat[0].username;
+//     returnResult.judulForm = formInfo[0].nama_form;
+//     returnResult.response_id=idResponse;
+//     let bagianArray=[];
+//     let formField={};
+//     for (let i=0 ; i<results.length; i++){
+//       let option=[];
+//       if(results[i].tipe == "radio" || results[i].tipe == "checkbox"){
+//         let options = await db.getFormFieldOption(results[i].id_form_field);
+//         for(let i=0; i<options.length; i++){
+//           option.push({nilai: options[i].nilai});
+//         }
+//       }
+//       if(bagianArray[results[i].bagian]){
+//         //bagian sudah ada sebelumnya
+//         //tambahkan pertanyaan
+//         if(!formField[results[i].id_form_field]){ //form field tersebut belum pernah ada sebelumnya
+//           bagianArray[results[i].bagian].response.push({
+//             pertanyaan: results[i].pertanyaan,
+//             urutan: results[i].urutan,
+//             tipe: results[i].tipe,
+//             option: option,
+//             value: [{"response_id": idResponse ,"jawaban": [results[i].value]}]
+//           })
+//           formField[results[i].id_form_field]={bagian: results[i].bagian, idx: bagianArray[results[i].bagian].response.length-1};
+//         }
+//         else{ //user select multiple answers, add to the value
+//           let tempBagian = formField[results[i].id_form_field].bagian;
+//           let tempIdx = formField[results[i].id_form_field].idx;
+//           bagianArray[tempBagian].response[tempIdx].value[0].jawaban.push(results[i].value);
+//         }
+//       }
+//       else{
+//         //bagian belum ada sebelumnya
+//         let sectionDescriptionsResult = await db.getSectionDescription(results[i].id_form,results[i].bagian);
+//         let temp = {
+//           judul: sectionDescriptionsResult[0].judul,
+//           bagian: results[i].bagian,
+//           deskripsi: null,
+//           response: [{
+//             pertanyaan: results[i].pertanyaan,
+//             urutan: results[i].urutan,
+//             tipe: results[i].tipe,
+//             option: option,
+//             value: [{"response_id": idResponse ,"jawaban": [results[i].value]}]
+//           }]
+//         };
+//         if(sectionDescriptionsResult[0] && sectionDescriptionsResult[0].deskripsi){
+//           temp["deskripsi"] = sectionDescriptionsResult[0].deskripsi;
+//         }
+//         bagianArray.push(temp);
+//         formField[results[i].id_form_field]={bagian: results[i].bagian, idx: bagianArray[results[i].bagian].response.length-1};
+//       }
+//     }
+//     returnResult.responses = bagianArray;
+//     return(returnResult);
+//   }
+//   catch(e){
+//     console.log(e);
+//     return null;
+//   }
+// }
+
+// router.get("/allFormResponses/:formID", async(req, res, next) => {
+//   /**Mendapatkan semua data response untuk semua response dengan form dengan id formID */
+//   try{
+//     let resultArray=[];
+//     let result = await db.getFormAllResultIds(req.params.formID);
+//     for(let i=0; i<result.length; i++){
+//       resultArray.push(result[i].id_form_result);
+//     }
+//     let finalResponse = await getSpecificResponse(resultArray[0], req.params.formID);
+//     delete finalResponse["response_id"];
+//     for(let i=1; i<resultArray.length; i++){
+//       let responseId = resultArray[i]
+//       let response = await getSpecificResponse(responseId, req.params.formID);
+//       //iterasi setiap bagian dari response
+//       let responseAllBagian = response.responses;
+//       // listOfResponses.push(response);
+//       for(let j=0; j<responseAllBagian.length; j++){
+//         let nomorBagian = responseAllBagian[j].bagian;
+//         let responseAllPertanyaan = responseAllBagian[j].response;
+//         for(let k=0; k<responseAllPertanyaan.length; k++){
+//           let nomorPertanyaan = responseAllPertanyaan[k].urutan;
+//           let jawabanPertanyaan = responseAllPertanyaan[k].value[0];
+//           finalResponse.responses[nomorBagian].response[nomorPertanyaan].value.push(jawabanPertanyaan);
+//         }
+//       }
+//     }
+
+//     res.json(finalResponse);
+//   }
+//   catch(e){
+//     console.log(e);
+//   }
+// })
+
+async function getValueOfFormField (allResponseIDs, id_form_field) {
+  let temp = await db.getFormFieldValue(id_form_field);
+  let formattedValues = [];
+  for(let i=0; i<temp.length; i++){
+    let foundIndex = formattedValues.findIndex(formattedValue => formattedValue['response_id'] === temp[i]['response_id']);
+    if (foundIndex == -1){
+      //response Id sudah ada sebelumnya
+      temp[i].jawaban = [temp[i].jawaban]
+      formattedValues.push(temp[i])
     }
-    returnResult.responses = bagianArray;
-    return(returnResult);
+    else{
+      formattedValues[foundIndex].jawaban.push(temp[i].jawaban)
+    }
   }
-  catch(e){
-    console.log(e);
-    return null;
+  //Masukin semua response_ID yang null
+  for(let i=0; i<allResponseIDs.length; i++){
+    let foundIndex = formattedValues.findIndex(formattedValue => formattedValue['response_id'] === allResponseIDs[i]);
+    if(foundIndex == -1){
+      formattedValues.push({
+        response_id: allResponseIDs[i],
+        jawaban: null
+      })
+    }
   }
+  return formattedValues;
 }
 
 router.get("/allFormResponses/:formID", async(req, res, next) => {
-  /**Mendapatkan semua data response untuk semua response dengan form dengan id formID */
   try{
-    let resultArray=[];
-    let result = await db.getFormAllResultIds(req.params.formID);
-    for(let i=0; i<result.length; i++){
-      resultArray.push(result[i].id_form_result);
-    }
-    let finalResponse = await getSpecificResponse(resultArray[0], req.params.formID);
-    delete finalResponse["response_id"];
-    for(let i=1; i<resultArray.length; i++){
-      let responseId = resultArray[i]
-      let response = await getSpecificResponse(responseId, req.params.formID);
-      //iterasi setiap bagian dari response
-      let responseAllBagian = response.responses;
-      // listOfResponses.push(response);
-      for(let j=0; j<responseAllBagian.length; j++){
-        let nomorBagian = responseAllBagian[j].bagian;
-        let responseAllPertanyaan = responseAllBagian[j].response;
-        for(let k=0; k<responseAllPertanyaan.length; k++){
-          let nomorPertanyaan = responseAllPertanyaan[k].urutan;
-          let jawabanPertanyaan = responseAllPertanyaan[k].value[0];
-          finalResponse.responses[nomorBagian].response[nomorPertanyaan].value.push(jawabanPertanyaan);
-        }
+    let allResponseIDs = await db.getAllFormResponseID(req.params.formID);
+    let returnResult = await getFormQuestionsForResponse(req.params.formID);
+    let allResponses = returnResult.responses;
+    for(let bagIdx=0; bagIdx<allResponses.length; bagIdx++){
+      let allPertanyaan=allResponses[bagIdx].response;
+      for(let qIdx=0; qIdx<allPertanyaan.length; qIdx++){
+        allPertanyaan[qIdx].value = await getValueOfFormField(allResponseIDs, allPertanyaan[qIdx].id_form_field);
       }
     }
-
-    res.json(finalResponse);
+    res.json(returnResult);
   }
   catch(e){
     console.log(e);
+    res.sendStatus(500);
   }
 })
 
