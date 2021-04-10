@@ -1,0 +1,73 @@
+{
+    "id_form": 40,
+    "judulForm": "Kota di Indonesia [UPDATED]",
+    "bagian": [
+        {
+            "judul": "Bagian 1 - Sejarah [UPDATED]",
+            "deskripsi": "Pertanyaan mengenai sejarah kota-kota di Indonesia [UPDATED]",
+            "pertanyaan": [
+                {
+                    "pertanyaan": "Apa nama ibukota di Jawa Barat? [UPDATED]",
+                    "deskripsi": "Ini adalah pertanyaan 1 bagian 1 [UPDATED]",
+                    "required": 1,
+                    "tipe": "checkbox",
+                    "option": [
+                        "Jakarta",
+                        "Bandung",
+                        "Surabaya",
+                        "Tegal"
+                    ]
+                },
+                {
+                    "pertanyaan": "Apa makanan khas Bandung? [UPDATED]",
+                    "deskripsi": "Ini adalah pertanyaan 2 bagian 1 [UPDATED]",
+                    "required": 0,
+                    "tipe": "short_answer",
+                    "option": []
+                }
+            ]
+        },
+        {
+            "judul": "Bagian 2 - Wisata Alam [UPDATED]",
+            "deskripsi": "Pertanyaan mengenai tempat wisata alam di Indonesia [UPDATED]",
+            "pertanyaan": [
+                {
+                    "pertanyaan": "Sebutkan salah satu tempat wisata terkenal di Indonesia! [UPDATED]",
+                    "deskripsi": "Ini adalah pertanyaan 1 bagian 2 [UPDATED]",
+                    "required": 0,
+                    "tipe": "radio",
+                    "option": [
+                        "Pantai Kuta",
+                        "Gunung Tangkuban Perahu",
+                        "Kawah Putih"
+                    ]
+                },
+                {
+                    "pertanyaan": "Ceritakan pengalaman Anda terbaik terhadap wisata alam di Indonesia! [INSERTED]",
+                    "deskripsi": "Ini adalah pertanyaan 2 bagian 2 [INSERTED]",
+                    "required": 1,
+                    "tipe": "paragraf",
+                    "option": []
+                }
+            ]
+        },
+        {
+            "judul": "Bagian 3 - Makanan Daerah [INSERTED]",
+            "deskripsi": "Pertanyaan mengenai oleh-oleh di Indonesia [INSERTED]",
+            "pertanyaan": [
+                {
+                    "pertanyaan": "Apa oleh-oleh khas Bandung? [INSERTED]",
+                    "deskripsi": "Ini adalah pertanyaan 1 bagian 3 [INSERTED]",
+                    "required": 1,
+                    "tipe": "checkbox",
+                    "option": [
+                        "Tape",
+                        "Batagor",
+                        "Cendol",
+                        "Dodol"
+                    ]
+                }
+            ]
+        }
+    ]
+}
