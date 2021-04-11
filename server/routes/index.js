@@ -730,7 +730,7 @@ uploader.post("/upload",async(req,res)  =>{
 });
 
 async function getUnixtime(time){
-  return Math.floor(new Date(time).getTime()/1000) + 7*3600;
+  return Math.floor(new Date(time).getTime()/1000);
 }
 
 async function getImagesdesc(id_form){
