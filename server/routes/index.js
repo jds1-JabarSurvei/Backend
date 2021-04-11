@@ -145,9 +145,7 @@ async function getFormQuestions(formID){
     returnResult.judulForm = firstResult.nama_form;
     let time = firstResult.time;
     returnResult.time = await getUnixtime(time);
-    let imageres = await db.getPathImages(req.params.formID);
-    let image = {name:imageres[0].filename, path:imageres[0].path};
-    returnResult.image = image;
+    returnResult.image = await getImagesdesc(formID);
     let bagianArray=[]
     for (let i=0 ; i<results.length; i++){
       let option=[];
