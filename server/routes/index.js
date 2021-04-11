@@ -2,7 +2,7 @@ const express = require("express");
 const db = require("../db");
 const bcrypt = require("bcrypt");
 const nodemon = require("nodemon");
-const { insert_form } = require("../db");
+const { insert_form, getPathImages } = require("../db");
 const saltRounds = 10;
 const fileUpload = require('express-fileupload');
 const path = require('path');
@@ -11,6 +11,7 @@ const router = express.Router();
 const uploader = router.use(fileUpload());
 router.use("/images", express.static(path.join(__dirname, '../db/images')))
 const fs = require('fs');
+const nconf = require('nconf');
 
 router.post("/register", async (req, res, next) => {
   /*POST request untuk meregister user baru sesuai parameter body*/
@@ -79,10 +80,8 @@ router.get("/formQuestions/:formID", async(req, res, next) => {
     returnResult.pembuat = dataPembuat[0].username;
     returnResult.judulForm = firstResult.nama_form;
     let time = firstResult.time;
+    returnResult.image = await getImagesdesc(req.params.formID);
     returnResult.time = await getUnixtime(time);
-    let imageres = await db.getPathImages(req.params.formID);
-    let image = {name:imageres[0].filename, path:imageres[0].path};
-    returnResult.image = image;
     let bagianArray=[]
     for (let i=0 ; i<results.length; i++){
       let option=[];
@@ -128,13 +127,11 @@ router.get("/formQuestions/:formID", async(req, res, next) => {
         bagianArray.push(temp);
       }
     }
-
-
     returnResult.pertanyaan = bagianArray;
-
     res.json(returnResult);
   }
   catch(e){
+    res.json({message:"tidak ditemukan"});
     console.log(e);
   }
 })
@@ -350,10 +347,7 @@ router.get("/listOfForms/:titleSubstring", async(req, res, next) => {
         user[formsList[i].id_pembuat] = (await db.getUserInfo(formsList[i].id_pembuat))[0].username;
       } 
       temp.owner = user[formsList[i].id_pembuat];
-      let imageres = await db.getPathImages(temp.id);
-      let image = {name:imageres[0].filename, path:imageres[0].path};
-      temp.image = image;
-      returnResult.image = image;
+      temp.image = await getImagesdesc(formsList[i].id_form);
       let time = formsList[i].time;
       temp.time = await getUnixtime(time);
       returnResult.push(temp);
@@ -380,9 +374,7 @@ router.get("/listOfForms", async(req, res, next) => {
         user[formsList[i].id_pembuat] = (await db.getUserInfo(formsList[i].id_pembuat))[0].username;
       } 
       temp.owner = user[formsList[i].id_pembuat];
-      let imageres = await db.getPathImages(temp.id);
-      let image = {name:imageres[0].filename, path:imageres[0].path};
-      temp.image = image;
+      temp.image = await getImagesdesc(formsList[i].id_form);
       let time = formsList[i].time;
       temp.time = await getUnixtime(time);
       returnResult.push(temp);
@@ -512,7 +504,7 @@ uploader.post("/upload",async(req,res)  =>{
   file.mv(filelocation,err => {
     if(err) {
       console.error(err);
-      return res.status(500).send(err);
+      res.status(500).send(err);
     }
 
     res.json({status: "success",filename:`${filename}`, url:`/images/${hashedfilename}.${typefile}`});
@@ -520,8 +512,65 @@ uploader.post("/upload",async(req,res)  =>{
 });
 
 async function getUnixtime(time){
-  return Math.floor(new Date(time).getTime()/1000);
+  return Math.floor(new Date(time).getTime()/1000) + 7*3600;
 }
+
+async function getImagesdesc(id_form){
+  let imageres = await db.getPathImages(id_form);
+  if ((typeof imageres[0] === 'undefined')){
+    return {name:null,filename:null};
+  }
+  return {name:imageres[0].filename, path:imageres[0].path};
+}
+
+router.post("/inputcarousel", async(req,res,next) =>{
+  try{
+    let carousel = req.body.carousel;
+    let conflocation = path.join(__dirname, '../db/asset.json')
+    nconf.use('file', { file: conflocation });
+    nconf.load();
+    nconf.set('carousel', carousel);
+    
+    let saved = nconf.get('carousel');
+    
+    nconf.save();
+    res.json({status:"success",carousel:saved})
+  }catch(e){
+    console.log(e);
+    res.sendStatus(500);
+  }
+});
+
+router.get("/listofCarousel", async (req, res, next) => {
+  let user=[];
+  let returnResult=[];
+  try {
+    let conflocation = path.join(__dirname, '../db/asset.json')
+    nconf.use('file', { file: conflocation });
+    nconf.load();
+    let carousel = nconf.get('carousel');
+    let formsList = await db.getFormInSetInfo(carousel);
+  
+    for(let i=0; i<formsList.length; i++){
+      let temp={};
+      temp.id = formsList[i].id_form;
+      temp.title = formsList[i].nama_form;
+      if(!user[formsList[i].id_pembuat]){
+        user[formsList[i].id_pembuat] = (await db.getUserInfo(formsList[i].id_pembuat))[0].username;
+      } 
+      temp.owner = user[formsList[i].id_pembuat];
+      temp.image = await getImagesdesc(formsList[i].id_form);
+      let time = formsList[i].time;
+      temp.time = await getUnixtime(time);
+      returnResult.push(temp);
+    }
+    res.send(returnResult);
+  } catch (e) {
+    console.log(e);
+    res.json({message:"tidak ditemukan"});
+  }
+});
+
 
 router.get("/all", async (req, res, next) => {
 
