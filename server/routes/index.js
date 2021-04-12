@@ -105,8 +105,9 @@ async function getFormQuestionsForResponse(formID){
       else{
         //bagian belum ada sebelumnya
         let sectionDescriptionsResult = await db.getSectionDescription(formID,results[i].bagian);
+        console.log(sectionDescriptionsResult);
         let temp = {
-          judul: `BAGIAN ${results[i].bagian+1}`,
+          judul: sectionDescriptionsResult[0].judul,
           bagian: results[i].bagian,
           deskripsi: null,
           response: [{
@@ -423,6 +424,7 @@ router.get("/formResponse/:resultID", async(req, res, next) => {
       else{
         //bagian belum ada sebelumnya
         let sectionDescriptionsResult = await db.getSectionDescription(results[i].id_form,results[i].bagian);
+        console.log(sectionDescriptionsResult);
         let temp = {
           judul: `BAGIAN ${results[i].bagian+1}`,
           bagian: results[i].bagian,
