@@ -149,6 +149,22 @@ db.getFormInfo = (idForm) => {
   });
 };
 
+db.getFormInSetInfo = (setofidForm) => {
+  /*Mendapatkan informasi dari sebuah form dengan id tertentu */
+  return new Promise((resolve, reject) => {
+    pool.query(
+      `SELECT * from form where id_form IN (${setofidForm});`,
+      (err, result) => {
+        if(err){
+          return reject(err);
+        }
+        return resolve(result);
+      }
+    );
+  });
+};
+
+
 db.getUserInfo = (userID) => {
   /* Mendapatkan data-data general dari seorang user dengan userID tertentu*/
   return new Promise((resolve, reject) => {
