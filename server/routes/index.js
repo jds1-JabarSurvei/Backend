@@ -78,7 +78,7 @@ async function getFormQuestionsForResponse(formID){
     returnResult.pembuat = dataPembuat[0].username;
     returnResult.judulForm = firstResult.nama_form;
     let time = firstResult.time;
-    returnResult.image = await getImagesdesc(req.params.formID);
+    returnResult.image = await getImagesdesc(formID);
     returnResult.time = await getUnixtime(time);
     let bagianArray=[]
     for (let i=0 ; i<results.length; i++){
