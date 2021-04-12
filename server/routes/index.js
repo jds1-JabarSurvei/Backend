@@ -759,16 +759,33 @@ router.post("/inputcarousel", async(req,res,next) =>{
   }
 });
 
-router.get("/listofCarousel", async (req, res, next) => {
+router.get("/configuration", async (req, res, next) => {
+  try {
+    let conflocation = path.join(__dirname, '../db/asset.json');
+    nconf.use('file', { file: conflocation });
+    nconf.load();
+    let carouselconf = nconf.get('carousel');
+    res.json({carousel:carouselconf});
+  } catch (e) {
+      console.log(e);
+      res.sendStatus(500);
+  }
+});
+
+router.get("/listOfCarousel", async (req, res, next) => {
   let user=[];
   let returnResult=[];
   try {
-    let conflocation = path.join(__dirname, '../db/asset.json')
+    let conflocation = path.join(__dirname, '../db/asset.json');
     nconf.use('file', { file: conflocation });
     nconf.load();
     let carousel = nconf.get('carousel');
     let formsList = await db.getFormInSetInfo(carousel);
-  
+    carousel = carousel.split(",");
+    for (let i=0; i<carousel.length; i++){
+        const mess = {message:"id_form tidak ditemukan"};
+        returnResult.splice(i, 0, mess)  
+    }
     for(let i=0; i<formsList.length; i++){
       let temp={};
       temp.id = formsList[i].id_form;
@@ -780,8 +797,11 @@ router.get("/listofCarousel", async (req, res, next) => {
       temp.image = await getImagesdesc(formsList[i].id_form);
       let time = formsList[i].time;
       temp.time = await getUnixtime(time);
-      returnResult.push(temp);
-    }
+      var index = carousel.indexOf(String(temp.id));
+      returnResult[index] = temp;     }
+      // console.log(index);
+      // returnResult.push(temp);
+    
     res.send(returnResult);
   } catch (e) {
     console.log(e);
