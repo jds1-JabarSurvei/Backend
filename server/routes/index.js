@@ -105,7 +105,7 @@ async function getFormQuestionsForResponse(formID){
       else{
         //bagian belum ada sebelumnya
         let sectionDescriptionsResult = await db.getSectionDescription(formID,results[i].bagian);
-        console.log(sectionDescriptionsResult);
+        // console.log(sectionDescriptionsResult);
         let temp = {
           judul: sectionDescriptionsResult[0].judul,
           bagian: results[i].bagian,
@@ -173,7 +173,7 @@ async function getFormQuestions(formID){
         //bagian belum ada sebelumnya
         let sectionDescriptionsResult = await db.getSectionDescription(formID,results[i].bagian);
         let temp = {
-          judul: `BAGIAN ${results[i].bagian+1}`,
+          judul: sectionDescriptionsResult[0].judul,
           bagian: results[i].bagian,
           deskripsi: null,
           pertanyaan: [{
