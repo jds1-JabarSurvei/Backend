@@ -23,7 +23,7 @@ app.use(express.json());
 //   next();
 // });
 app.use(cors({
-  origin: 'https://polar-tundra-59366.herokuapp.com/',
+  origin: 'https://polar-tundra-59366.herokuapp.com',
   credentials: true
 }))
 app.use("/", apiRouter);
