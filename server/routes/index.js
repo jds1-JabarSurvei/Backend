@@ -174,6 +174,7 @@ async function getFormQuestions(formID){
         let sectionDescriptionsResult = await db.getSectionDescription(formID,results[i].bagian);
         let temp = {
           judul: sectionDescriptionsResult[0].judul,
+          id_section: sectionDescriptionsResult[0].id_section,
           bagian: results[i].bagian,
           deskripsi: null,
           pertanyaan: [{
@@ -588,25 +589,39 @@ router.post("/deleteform", async(req,res,next) =>{
   }
 });
 
-// router.post("/deleteresponse", async(req,res,next) =>{
-//   try{
-//     let id_form = req.body.id_form;
-//     let id_response = req.body.id_response;
-//     let results = await db.delete_response(id_form,id_response);
-//     res.json(results);
-//   }catch(e){
-//     console.log(e);
-//     res.sendStatus(500);
-//   }
-// });
-
 router.post("/editform", async(req, res, next) => {
   try{
     let id_form = req.body.id_form;
     let judulForm = req.body.judulForm;
     let bagianArray = req.body.bagian;
+    let deletedArray = req.body.deletedField;
+    let deletedBagianArray = req.body.deletedSection;
     //Update form info
     await db.update_form_info(id_form, judulForm);
+
+    //soft delete bagian beserta pertanyaan" bagian itu
+    for(let oldIdx=0; oldIdx<=deletedBagianArray.length; oldIdx++){
+      //softdelete bagian
+      await db.soft_delete_bagian(id_form, deletedBagianArray[oldIdx]);
+      // //softdelete pertanyaan" dari bagian itu
+      let old_highest_urutan_field = await db.get_highest_urutan_pertanyaan(id_form, deletedBagianArray[oldIdx]);
+      
+      if(old_highest_urutan_field && old_highest_urutan_field[0]){
+        for(let qIdx=0; qIdx<=old_highest_urutan_field[0].urutan; qIdx++){
+          // db.soft_delete_pertanyaan(id_form, oldIdx, qIdx);
+          let id_form_field_temp = await db.getFormFieldId(id_form, deletedBagianArray[oldIdx], qIdx);
+          let id_form_field = null;
+          if(id_form_field_temp && id_form_field_temp[0] && id_form_field_temp[0].id_form_field){
+            id_form_field = id_form_field_temp[0].id_form_field;
+          }
+          if(id_form_field){
+            await db.soft_delete_pertanyaan_on_IDFormField(id_form_field);
+          }
+        }
+      }
+
+    }
+
     for(let i=0; i<bagianArray.length; i++){
       let bagian=bagianArray[i];
       //Update section
@@ -614,8 +629,21 @@ router.post("/editform", async(req, res, next) => {
       // Update pertanyaan
       let pertanyaanArray = bagian.pertanyaan;
       // console.log("Panjang array pertanyaan: " + pertanyaanArray.length);
+      
+    
+      //soft delete pertanyaan di list deletedField
+      for(let idx=0; idx<deletedArray.length; idx++){
+        // console.log("Form field id yang dihapus");
+        // console.log(deletedArray[idx]);
+        // console.log("Form field id yang dihapus");
+        await db.soft_delete_pertanyaan_on_IDFormField(deletedArray[idx]);
+      }
+
       for(let j=0; j<pertanyaanArray.length; j++){
         let id_form_field_temp = await db.getFormFieldId(id_form, i, j);
+        // console.log("Form field id yang ditemukan");
+        // console.log(id_form_field_temp);
+        // console.log("Form field id yang ditemukan");
         let id_form_field = null;
         if(id_form_field_temp && id_form_field_temp[0] && id_form_field_temp[0].id_form_field){
           id_form_field = id_form_field_temp[0].id_form_field;
@@ -661,33 +689,28 @@ router.post("/editform", async(req, res, next) => {
         }
       }
       //softdelete pertanyaan yang udah gak ada
-      let old_highest_urutan_field = await db.get_highest_urutan_pertanyaan(id_form, i);
-      old_highest_urutan_field = old_highest_urutan_field && old_highest_urutan_field[0] && old_highest_urutan_field[0].urutan;
-      for(let oldIdx=pertanyaanArray.length; oldIdx<=old_highest_urutan_field; oldIdx++){
-        db.soft_delete_pertanyaan(id_form, i, oldIdx);
-      }
+      // let old_highest_urutan_field = await db.get_highest_urutan_pertanyaan(id_form, i);
+      // old_highest_urutan_field = old_highest_urutan_field && old_highest_urutan_field[0] && old_highest_urutan_field[0].urutan;
+      // for(let oldIdx=pertanyaanArray.length; oldIdx<=old_highest_urutan_field; oldIdx++){
+      //   db.soft_delete_pertanyaan(id_form, i, oldIdx);
+      // }
     }
     //bagian yang udah gak ada lagi
-    let old_highest_bagian = await db.get_highest_form_bagian(id_form);
-    old_highest_bagian = old_highest_bagian[0].id_bagian;
-    for(let oldIdx=bagianArray.length; oldIdx<=old_highest_bagian; oldIdx++){
-      console.log("Bagian yang mau diilangin");
-      console.log(oldIdx);
-      console.log("Bagian yang mau diilangin");
-      //softdelete bagian
-      await db.soft_delete_bagian(id_form, oldIdx);
-      console.log("Bagian " + oldIdx + " berhasil disoft delete");
-      // //softdelete pertanyaan" dari bagian itu
-      let old_highest_urutan_field = await db.get_highest_urutan_pertanyaan(id_form, oldIdx);
+    // let old_highest_bagian = await db.get_highest_form_bagian(id_form);
+    // old_highest_bagian = old_highest_bagian[0].id_bagian;
+    // for(let oldIdx=bagianArray.length; oldIdx<=old_highest_bagian; oldIdx++){
+    //   //softdelete bagian
+    //   await db.soft_delete_bagian(id_form, oldIdx);
+    //   // //softdelete pertanyaan" dari bagian itu
+    //   let old_highest_urutan_field = await db.get_highest_urutan_pertanyaan(id_form, oldIdx);
       
-      if(old_highest_urutan_field && old_highest_urutan_field[0]){
-        console.log("Masukk sinii gak yyaaa??");
-        for(let qIdx=0; qIdx<=old_highest_urutan_field[0].urutan; qIdx++){
-          db.soft_delete_pertanyaan(id_form, oldIdx, qIdx);
-        }
-      }
+    //   if(old_highest_urutan_field && old_highest_urutan_field[0]){
+    //     for(let qIdx=0; qIdx<=old_highest_urutan_field[0].urutan; qIdx++){
+    //       db.soft_delete_pertanyaan(id_form, oldIdx, qIdx);
+    //     }
+    //   }
 
-    }
+    // }
 
     res.json("Selesai");
   }
