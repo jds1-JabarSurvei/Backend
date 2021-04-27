@@ -63,7 +63,7 @@ db.getFormFields = (idForm) => {
   /*MYSQL query untuk mendapatkan semua field dari suatu form*/
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT * from form inner join form_field using(id_form) where id_form=? and form_field.isdeleted is null;`, [idForm],
+      `SELECT * from form inner join form_field using(id_form) where id_form=? and form_field.isdeleted is null order by bagian,urutan;`, [idForm],
       (err, result) => {
         if (err) {
           return reject(err);
@@ -387,7 +387,7 @@ db.update_form_section = (id_form, id_bagian, new_title, new_description) => {
 db.getFormFieldId = (id_form, bagian, urutan) => {
   return new Promise((resolve, reject) => {
     pool.query(
-      `SELECT id_form_field from form_field WHERE id_form=? AND bagian=? AND urutan=?`,
+      `SELECT id_form_field from form_field WHERE id_form=? AND bagian=? AND urutan=? AND isdeleted is null`,
       [id_form, bagian, urutan],
       (err, result) => {
         if (err) {
@@ -571,11 +571,45 @@ db.soft_delete_pertanyaan = (id_form, bagian, urutan) => {
   })
 }
 
+db.soft_delete_pertanyaan_on_IDFormField = (id_form_field) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'update form_field set isdeleted="1" where id_form_field=?;',
+      [id_form_field],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        else {
+          return resolve(result);
+        }
+      }
+    )
+  })
+}
+
 db.soft_delete_bagian = (id_form, bagian) => {
   return new Promise((resolve, reject) => {
     pool.query(
       'update form_section set isdeleted="1" where id_form=? and id_bagian=?;',
       [id_form, bagian],
+      (err, result) => {
+        if (err) {
+          return reject(err);
+        }
+        else {
+          return resolve(result);
+        }
+      }
+    )
+  })
+}
+
+db.soft_delete_bagian_on_IDSection = (id_section) => {
+  return new Promise((resolve, reject) => {
+    pool.query(
+      'update form_section set isdeleted="1" where id_section=?;',
+      [id_section],
       (err, result) => {
         if (err) {
           return reject(err);
