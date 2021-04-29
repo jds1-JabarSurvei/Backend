@@ -5,7 +5,6 @@ const fileUpload = require("express-fileupload");
 const apiRouter = require("./routes");
 
 const app = express();
-app.use(cors());
 app.use(express.json());
 
 // var corsOptions = {
@@ -22,7 +21,10 @@ app.use(express.json());
 //   );
 //   next();
 // });
-app.use(cors());
+app.use(cors({
+  origin: 'https://polar-tundra-59366.herokuapp.com',
+  credentials: false
+}))
 app.use("/", apiRouter);
 
 module.exports = app;
