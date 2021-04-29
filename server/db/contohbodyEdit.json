@@ -1,73 +1,50 @@
 {
-    "id_form": 40,
-    "judulForm": "Kota di Indonesia [UPDATED]",
+    "id_form": 89,
+    "judulForm": "Survei Manajemen Waktu",
     "bagian": [
         {
-            "judul": "Bagian 1 - Sejarah [UPDATED]",
-            "deskripsi": "Pertanyaan mengenai sejarah kota-kota di Indonesia [UPDATED]",
+            "judul": "Pertanyaan manajemen waktu",
+            "deskripsi": "Deskripsi",
             "pertanyaan": [
                 {
-                    "pertanyaan": "Apa nama ibukota di Jawa Barat? [UPDATED]",
-                    "deskripsi": "Ini adalah pertanyaan 1 bagian 1 [UPDATED]",
-                    "required": 1,
-                    "tipe": "checkbox",
-                    "option": [
-                        "Jakarta",
-                        "Bandung",
-                        "Surabaya",
-                        "Tegal"
-                    ]
+                    "pertanyaan": "Dari skala 1 s/d 5, seberapa baik manajemen waktu kamu?",
+                    "deskripsi": "Question description",
+                    "required": "0",
+                    "tipe": "short_answer",
+                    "option": []
                 },
                 {
-                    "pertanyaan": "Apa makanan khas Bandung? [UPDATED]",
-                    "deskripsi": "Ini adalah pertanyaan 2 bagian 1 [UPDATED]",
-                    "required": 0,
+                    "pertanyaan": "Seberapa yakin anda?",
+                    "deskripsi": "Question description",
+                    "required": "0",
                     "tipe": "short_answer",
                     "option": []
                 }
             ]
         },
         {
-            "judul": "Bagian 2 - Wisata Alam [UPDATED]",
-            "deskripsi": "Pertanyaan mengenai tempat wisata alam di Indonesia [UPDATED]",
+            "judul": "Bagian coba lagi dong",
+            "deskripsi": "Deskripsi",
             "pertanyaan": [
                 {
-                    "pertanyaan": "Sebutkan salah satu tempat wisata terkenal di Indonesia! [UPDATED]",
-                    "deskripsi": "Ini adalah pertanyaan 1 bagian 2 [UPDATED]",
-                    "required": 0,
-                    "tipe": "radio",
-                    "option": [
-                        "Pantai Kuta",
-                        "Gunung Tangkuban Perahu",
-                        "Kawah Putih"
-                    ]
+                    "pertanyaan": "Pertanyaan apa yang mau dicoba lagi dong yooooo?",
+                    "deskripsi": "Question descriptionn lagi dong yoooo",
+                    "required": "0",
+                    "tipe": "short_answer",
+                    "option": []
                 },
                 {
-                    "pertanyaan": "Ceritakan pengalaman Anda terbaik terhadap wisata alam di Indonesia! [INSERTED]",
-                    "deskripsi": "Ini adalah pertanyaan 2 bagian 2 [INSERTED]",
-                    "required": 1,
-                    "tipe": "paragraf",
+                    "pertanyaan": "Pertanyaan apa yang mau dicoba lagi dong yaaa?",
+                    "deskripsi": "Question descriptionn lagi dong yoooo",
+                    "required": "0",
+                    "tipe": "short_answer",
                     "option": []
                 }
             ]
-        },
-        {
-            "judul": "Bagian 3 - Makanan Daerah [INSERTED]",
-            "deskripsi": "Pertanyaan mengenai oleh-oleh di Indonesia [INSERTED]",
-            "pertanyaan": [
-                {
-                    "pertanyaan": "Apa oleh-oleh khas Bandung? [INSERTED]",
-                    "deskripsi": "Ini adalah pertanyaan 1 bagian 3 [INSERTED]",
-                    "required": 1,
-                    "tipe": "checkbox",
-                    "option": [
-                        "Tape",
-                        "Batagor",
-                        "Cendol",
-                        "Dodol"
-                    ]
-                }
-            ]
         }
+    ],
+    "deletedField": [],
+    "deletedSection": [
+        1
     ]
 }
