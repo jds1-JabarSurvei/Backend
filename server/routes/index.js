@@ -12,7 +12,7 @@ const form = require('../controllers/form.controller');
 const carousel = require('../controllers/carousel.controller');
 
 router.use(function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "http://localhost:3000");
+  res.header("Access-Control-Allow-Origin", "https://staging-fe-jds01.herokuapp.com");
   res.header("Access-Control-Allow-Credentials", true);
   res.header(
     "Access-Control-Allow-Headers",
