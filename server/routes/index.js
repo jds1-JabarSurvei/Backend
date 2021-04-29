@@ -17,7 +17,7 @@ const cors = require(cors());
 var corsOptions = {
    origin: 'https://polar-tundra-59366.herokuapp.com',
    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-   allowedHeaders:["Control-Allow-Origin","Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type", "Accept, Access-Control-Allow-Origin"],
+   allowedHeaders:["Control-Allow-Origin","Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept","Access-Control-Allow-Origin"],
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
 
