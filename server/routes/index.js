@@ -12,7 +12,6 @@ const uploader = router.use(fileUpload());
 router.use("/images", express.static(path.join(__dirname, '../db/images')))
 const fs = require('fs');
 const nconf = require('nconf');
-const cors = require(cors());
 
 // var corsOptions = {
 //    origin: 'https://polar-tundra-59366.herokuapp.com',
