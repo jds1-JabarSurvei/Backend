@@ -14,14 +14,22 @@ const fs = require('fs');
 const nconf = require('nconf');
 const cors = require(cors());
 
-var corsOptions = {
-   origin: 'https://polar-tundra-59366.herokuapp.com',
-   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-   allowedHeaders:["Control-Allow-Origin","Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept","Access-Control-Allow-Origin"],
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
-
-router.post("/register",cors(corsOptions), async (req, res, next) => {
+// var corsOptions = {
+//    origin: 'https://polar-tundra-59366.herokuapp.com',
+//    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+//    allowedHeaders:["Control-Allow-Origin","Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept","Access-Control-Allow-Origin"],
+//   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+// }
+router.use(function (req, res, next) {
+  res.header("Access-Control-Allow-Origin", "https://polar-tundra-59366.herokuapp.com");
+  res.header("Access-Control-Allow-Credentials", true);
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+router.post("/register" , async (req, res, next) => {
   /*POST request untuk meregister user baru sesuai parameter body*/
   let email = req.body.email;
   let username = req.body.email.split("@")[0];
@@ -53,7 +61,7 @@ router.post("/register",cors(corsOptions), async (req, res, next) => {
   }
 });
 
-router.post("/login",cors(corsOptions), async (req, res, next) => {
+router.post("/login" , async (req, res, next) => {
   /*POST request untuk login user baru mereturn sukses(berhasil login) atau failed(gagal login)*/
   let email = req.body.email;
   let password = req.body.password;
@@ -210,7 +218,7 @@ async function getFormQuestions(formID){
 }
 
 
-router.get("/formQuestions/:formID",cors(corsOptions), async(req, res, next) => {
+router.get("/formQuestions/:formID" , async(req, res, next) => {
   /*GET REQUEST untuk mendapatkan list pertanyaan yang akan diisi oleh responden */
   try{
     let returnResult = await getFormQuestions(req.params.formID);
@@ -222,7 +230,7 @@ router.get("/formQuestions/:formID",cors(corsOptions), async(req, res, next) => 
   }
 })
 
-router.get("/formResponseIds/:formID",cors(corsOptions), async(req, res, next) => {
+router.get("/formResponseIds/:formID" , async(req, res, next) => {
   /**Mendapatkan semua response id untuk form dengan id formID*/
   try{
     let resultArray=[];
@@ -369,7 +377,7 @@ async function getValueOfFormField (allResponseIDs, id_form_field) {
   return formattedValues;
 }
 
-router.get("/allFormResponses/:formID",cors(corsOptions), async(req, res, next) => {
+router.get("/allFormResponses/:formID" , async(req, res, next) => {
   try{
     let allResponseIDs = await db.getAllFormResponseID(req.params.formID);
     let returnResult = await getFormQuestionsForResponse(req.params.formID);
@@ -389,7 +397,7 @@ router.get("/allFormResponses/:formID",cors(corsOptions), async(req, res, next) 
   }
 })
 
-router.get("/formResponse/:resultID",cors(corsOptions), async(req, res, next) => {
+router.get("/formResponse/:resultID" , async(req, res, next) => {
   /*GET request untuk mendapatkan pertanyaan serta jawaban dari suatu respon dari suatu form*/
   try{
     let results = await db.getFormEachResponse(req.params.resultID);
@@ -463,7 +471,7 @@ router.get("/formResponse/:resultID",cors(corsOptions), async(req, res, next) =>
   }
 })
 
-router.get("/listOfForms/:titleSubstring",cors(corsOptions), async(req, res, next) => {
+router.get("/listOfForms/:titleSubstring" , async(req, res, next) => {
   /*Get Request untuk mendapatkan list semua form yang ada */
   let user=[];
   let returnResult=[];
@@ -490,7 +498,7 @@ router.get("/listOfForms/:titleSubstring",cors(corsOptions), async(req, res, nex
   }
 })
 
-router.get("/listOfForms",cors(corsOptions), async(req, res, next) => {
+router.get("/listOfForms" , async(req, res, next) => {
   /*Get Request untuk mendapatkan list semua form yang ada */
   let user=[];
   let returnResult=[];
@@ -524,7 +532,7 @@ router.get('/api/users', function (req, res) {
 });
 
 
-router.post("/buatform",cors(corsOptions), async (req, res, next) => {
+router.post("/buatform" , async (req, res, next) => {
   let id_pembuat = req.body.user_id;
   let nama_form = req.body.judulForm;
   let bagianArray = req.body.bagian;
@@ -568,7 +576,7 @@ router.post("/buatform",cors(corsOptions), async (req, res, next) => {
   }
 });
 
-router.post("/submitjawaban",cors(corsOptions), async (req, res, next) => {
+router.post("/submitjawaban" , async (req, res, next) => {
   try{
     let id_form = req.body.id_form;
     let jawaban = req.body.jawaban;
@@ -585,7 +593,7 @@ router.post("/submitjawaban",cors(corsOptions), async (req, res, next) => {
   }
 });
 
-router.post("/deleteform",cors(corsOptions), async(req,res,next) =>{
+router.post("/deleteform" , async(req,res,next) =>{
   try{
     let id_form = req.body.id_form;
     let results = await db.delete_form(id_form);
@@ -608,7 +616,7 @@ router.post("/deleteform",cors(corsOptions), async(req,res,next) =>{
 //   }
 // });
 
-router.post("/editform",cors(corsOptions), async(req, res, next) => {
+router.post("/editform" , async(req, res, next) => {
   try{
     let id_form = req.body.id_form;
     let judulForm = req.body.judulForm;
@@ -706,7 +714,7 @@ router.post("/editform",cors(corsOptions), async(req, res, next) => {
   }
 
 })
-uploader.post("/upload",cors(corsOptions),async(req,res)  =>{ 
+uploader.post("/upload" ,async(req,res)  =>{ 
   if(req.files === null) {
     return res.status(400).json({ status: "failed", msg: 'No file uploaded'})
   }
@@ -751,7 +759,7 @@ async function getImagesdesc(id_form){
   return {name:imageres[0].filename, path:imageres[0].path};
 }
 
-router.post("/inputcarousel",cors(corsOptions), async(req,res,next) =>{
+router.post("/inputcarousel" , async(req,res,next) =>{
   try{
     let carousel = req.body.carousel;
     let conflocation = path.join(__dirname, '../db/asset.json')
@@ -769,7 +777,7 @@ router.post("/inputcarousel",cors(corsOptions), async(req,res,next) =>{
   }
 });
 
-router.get("/configuration",cors(corsOptions), async (req, res, next) => {
+router.get("/configuration" , async (req, res, next) => {
   try {
     let conflocation = path.join(__dirname, '../db/asset.json');
     nconf.use('file', { file: conflocation });
@@ -782,7 +790,7 @@ router.get("/configuration",cors(corsOptions), async (req, res, next) => {
   }
 });
 
-router.get("/listOfCarousel",cors(corsOptions), async (req, res, next) => {
+router.get("/listOfCarousel" , async (req, res, next) => {
   let user=[];
   let returnResult=[];
   try {
@@ -820,7 +828,7 @@ router.get("/listOfCarousel",cors(corsOptions), async (req, res, next) => {
 });
 
 
-router.get("/all",cors(corsOptions), async (req, res, next) => {
+router.get("/all" , async (req, res, next) => {
   try {
     let results = await db.all();
     res.json(results);
