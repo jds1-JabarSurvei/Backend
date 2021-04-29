@@ -71,11 +71,7 @@ exports.login = async (req, res) => {
 
         if (test) {
             let token = generateAccessToken({ "username": results[0].username, "email": "email", "role": results[0].role, "id": results[0].id });
-            res.cookie('jds', token, {
-                maxAge: 60 * 60 * 24 * 7,
-                httpOnly: false
-            });
-            res.json({ "login": "Success" });
+            res.json({ "login": "Success", "token": token });
         } else {
             res.json({ "email": email, "login": "Failed" });
         }
