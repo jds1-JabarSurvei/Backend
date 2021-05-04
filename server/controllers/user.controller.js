@@ -41,7 +41,7 @@ exports.register = async (req, res) => {
     try {
         let hash = await bcrypt.hash(password, saltRounds);
         let results = await db.register(email, username, hash, contactNumber, gender, address, birthday);
-        res.json(results);
+        res.json({"register": "Success"});
     } catch (e) {
         if (
             e.code === "ER_DUP_ENTRY" &&
