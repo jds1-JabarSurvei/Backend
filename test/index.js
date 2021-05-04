@@ -4,9 +4,7 @@ var test = require('tape');
 var request = require('supertest');
 var app = require('../server');
 
-
-
-// edit zaidan 
+ 
 test('Test buat from', function (t) {
     request(app)
         .post('/buatform')
@@ -105,10 +103,15 @@ test('Test correct list of forms returned', function (t) {
         .end(function (err, res) {
             var expectedUsers =
             {
-                "id": 1,
-                "title": "dummy",
-                "owner": "user"
-            };
+                "id": 89,
+                "title": "Survei Manajemen Waktu",
+                "owner": "user",
+                "image": {
+                    "name": "Survei Manajemen Waktu",
+                    "path": "/images/2b11mssLbueu50KNaGhPdw6dOfeD5l58iKGarFS44wdkKtNSwBolYSpS.jpg"
+                },
+                "time": 1619218591
+            }
 
             t.error(err, 'No error');
             t.same(res.body[0], expectedUsers, 'List of forms as expected');
@@ -118,77 +121,76 @@ test('Test correct list of forms returned', function (t) {
 
 test('Test get list of questions of survey', function (t) {
     request(app)
-        .get('/formQuestions/5')
+        .get('/formQuestions/90')
         .expect('Content-Type', /json/)
         .expect(200)
         .end(function (err, res) {
             var expectedRes =
-
             {
-                "id_form": "5",
-                "pembuat": "user",
-                "judulForm": "YUHUHUHU dummy",
+                "id_form": "90",
+                "pembuat": "nanda",
+                "judulForm": "Apakah kamu suka bermain dadu?",
+                "time": 1619242567,
+                "image": {
+                    "name": "Apakah kamu suka bermain dadu?",
+                    "path": "/images/2b11q2mTKQCnhVAPqJLjH2iXva7rTqkhK7d0gbOlc64eUCkWYddBq9Ua.jpg"
+                },
                 "pertanyaan": [
                     {
-                        "judul": "BAGIAN 1",
+                        "judul": "Apakah kamu suka bermain dadu?",
                         "bagian": 0,
-                        "deskripsi": "YUHUHUHU dummy",
+                        "deskripsi": "Deskripsi",
                         "pertanyaan": [
                             {
-                                "pertanyaan": "YUHUHUHU (dummy)Kenapa Spongebob warnanya kuning?",
-                                "id_form_field": 10,
-                                "deskripsi": "kemukakan jawaban anda mengenai warna kuning dari spongebob",
+                                "pertanyaan": "Apakah kamu suka bermain dadu?",
+                                "id_form_field": 268,
+                                "deskripsi": "Question description",
                                 "required": "1",
                                 "urutan": 0,
-                                "tipe": "short_answer",
-                                "option": []
-                            },
-                            {
-                                "pertanyaan": "YUHUHUHU Pertanyaan 2 bagian 0 form 1?",
-                                "id_form_field": 11,
-                                "deskripsi": "deskripsi pertanyaan 2 form 1",
-                                "required": "1",
-                                "urutan": 1,
-                                "tipe": "short_answer",
-                                "option": []
-                            }
-                        ]
-                    },
-                    {
-                        "judul": "BAGIAN 2",
-                        "bagian": 1,
-                        "deskripsi": null,
-                        "pertanyaan": [
-                            {
-                                "pertanyaan": "YUHUHUHU Pertanyaan 1  bagian 1 form 1?",
-                                "id_form_field": 12,
-                                "deskripsi": "deskripsi pertanyaan 0 bagian 1 form 1",
-                                "required": "1", "urutan": 0,
                                 "tipe": "radio",
                                 "option": [
-                                    { "nilai": "YUHUHUHUa", "id_form_option": 10 },
-                                    { "nilai": "YUHUHUHUb", "id_form_option": 11 },
-                                    { "nilai": "YUHUHUHUc", "id_form_option": 12 }
+                                    {
+                                        "nilai": "Tidak",
+                                        "id_form_option": 340
+                                    },
+                                    {
+                                        "nilai": "Bisa jadi",
+                                        "id_form_option": 341
+                                    }
                                 ]
-                            }
-                        ]
-                    },
-                    {
-                        "judul": "BAGIAN 3",
-                        "bagian": 2,
-                        "deskripsi": null,
-                        "pertanyaan": [
+                            },
                             {
-                                "pertanyaan": "YUHUHUHU Pertanyaan 1 bagian 2 form 1?",
-                                "id_form_field": 13,
-                                "deskripsi": "deskripsi pertanyaan 1 bagian 2 form 1",
+                                "pertanyaan": "Angka berapa yang paling kamu suka pada dadu?",
+                                "id_form_field": 269,
+                                "deskripsi": "Question description 2",
                                 "required": "1",
-                                "urutan": 0,
-                                "tipe": "checkbox",
+                                "urutan": 1,
+                                "tipe": "radio",
                                 "option": [
-                                    { "nilai": "YUHUHUHUa", "id_form_option": 13 },
-                                    { "nilai": "YUHUHUHUb", "id_form_option": 14 },
-                                    { "nilai": "YUHUHUHUc", "id_form_option": 15 }
+                                    {
+                                        "nilai": "1",
+                                        "id_form_option": 342
+                                    },
+                                    {
+                                        "nilai": "2",
+                                        "id_form_option": 343
+                                    },
+                                    {
+                                        "nilai": "3",
+                                        "id_form_option": 344
+                                    },
+                                    {
+                                        "nilai": "4",
+                                        "id_form_option": 345
+                                    },
+                                    {
+                                        "nilai": "5",
+                                        "id_form_option": 346
+                                    },
+                                    {
+                                        "nilai": "6",
+                                        "id_form_option": 347
+                                    }
                                 ]
                             }
                         ]
@@ -205,16 +207,21 @@ test('Test get list of questions of survey', function (t) {
 
 test('Test search list of forms with specific keyword', function (t) {
     request(app)
-        .get('/listOfForms/dummy2')
+        .get('/listOfForms/dadu')
         .expect('Content-Type', /json/)
         .expect(200)
         .end(function (err, res) {
             var expectedSearch =
-            {
-                "id": 2,
-                "title": "dummy2",
-                "owner": "user"
-            };
+                {
+                    "id": 90,
+                    "title": "Apakah kamu suka bermain dadu?",
+                    "owner": "nanda",
+                    "image": {
+                        "name": "Apakah kamu suka bermain dadu?",
+                        "path": "/images/2b11q2mTKQCnhVAPqJLjH2iXva7rTqkhK7d0gbOlc64eUCkWYddBq9Ua.jpg"
+                    },
+                    "time": 1619242567
+                }
 
             t.error(err, 'No error');
             t.same(res.body[0], expectedSearch, 'List of forms as expected');
@@ -233,8 +240,6 @@ test('Test Login with right credentials', function (t) {
         .expect(200)
         .end((err, res) => {
             let expectedResult = {
-                "email": "user@gmail.com",
-                "role": "admin",
                 "login": "Success"
             }
 
@@ -242,6 +247,27 @@ test('Test Login with right credentials', function (t) {
             t.same(res.body, expectedResult, 'Login successful');
             t.end();
         })
+})
+
+test('Test Register', function(t){
+    request(app)
+    .post('/register')
+    .send({
+        email: "user12@gmail.com",
+        password: "password",
+        contactNumber: "081224232232",
+        gender: "F",
+        address: "Taman Rahayu Selatan no 18 Bandung",
+        birthday: "22-02-2013"
+    })
+    .expect('Content-Type', /json/)
+    .expect(200)
+    .end((err, res) => {
+        let expectedResult = { error: 'Email has been taken' }
+        t.error(err, 'No error');
+        t.same(res.body, expectedResult, 'Register successful');
+        t.end();
+    })
 })
 
 test.onFinish(() => process.exit(0));

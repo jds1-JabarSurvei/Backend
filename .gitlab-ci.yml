@@ -9,7 +9,6 @@ build:
     - npm install
   artifacts:
     paths:
-      - .npm/
       - node_modules/
 
 test:
